@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __SIMULATOR__QGATE_H__
+#define __SIMULATOR__QGATE_H__
 
 
 #include <armadillo>
@@ -55,3 +56,6 @@ private:
 };
 
 };
+
+
+#endif // __SIMULATOR__QGATE_H__

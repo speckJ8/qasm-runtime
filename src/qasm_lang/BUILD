@@ -8,9 +8,15 @@ cc_library (
 cc_library (
     name = "parser",
     srcs = [ "parser.cc" ],
-    hdrs = [ "parser.h", "lexer.h" ],
-    visibility = [ "//tests:__pkg__" ],
+    hdrs = [ "parser.h", "grammar.h", ],
+    visibility = [ "//src:__pkg__" ],
     deps = [
-        "//third_party:pegtl"
+        "//src/qasm_lang/ast:ast"
     ]
+)
+
+cc_library (
+    name = "symbol_table",
+    srcs = [ "symbol_table.cc" ],
+    hdrs = [ "symbol_table.h" ],
 )

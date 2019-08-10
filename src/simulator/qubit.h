@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __SIMULATOR__QUBIT_H__
+#define __SIMULATOR__QUBIT_H__
 
 
 #include <armadillo>
@@ -41,3 +42,6 @@ private:
 };
 
 };
+
+
+#endif // __SIMULATOR__QUBIT_H__

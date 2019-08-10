@@ -1,15 +1,24 @@
-#pragma once
+#ifndef __QASM_LANG__PARSER_H__
+#define __QASM_LANG__PARSER_H__
 
-#include "third_party/pegtl.hpp"
+
+#include <iostream>
+
+#include "ast/node.h"
+
 
 namespace qasm_lang {
 
-using namespace tao::pegtl;
-
 namespace parser {
 
-    struct number : plus<digit> {};
+    /**
+     * @param source_name qasm input stream
+     * */
+    void parse (std::istream& input);
 
 };
 
 };
+
+
+#endif // __QASM_LANG__PARSER_H__
