@@ -84,10 +84,10 @@ public:
     static const std::string Ln;
     static const std::string Sqrt;
 
-    const Type type;
-    const Kind kind;
-    const std::string value;
-    const unsigned int line, column;
+    Type type;
+    Kind kind;
+    std::string value;
+    unsigned int line, column;
 
     Token (Type type, Kind kind, std::string value, unsigned int line, unsigned int column):
         type(type), kind(kind), value(value), line(line), column(column) {};
@@ -103,7 +103,13 @@ std::string repr (Token::Type type);
 /**
  * Return the next lexical token.
  * */
-Token lex (std::istream& stream, unsigned int curr_line);
+Token next_token (std::istream& stream, unsigned int* curr_line);
+
+
+/**
+ * Return a lookahead token.
+ * */
+void pushback_token (Token tk);
 
 };
 

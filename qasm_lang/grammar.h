@@ -89,7 +89,7 @@ namespace parser {
             seq<one<'+'>, Ws, MultExpression, Ws, _AddExpression>,
             seq<one<'-'>, Ws, MultExpression, Ws, _AddExpression>
         > {};
-    struct AddExpression: seq<seq<MultExpression, Ws, _AddExpression>>{};
+    struct AddExpression: <seq<MultExpression, Ws, _AddExpression> {};
 
     /**
      * Multiplicative expression without left recursion
@@ -106,7 +106,12 @@ namespace parser {
     /**
      * Expression, ExpressionList | Expression
      * */
-    struct ExpressionList:sor<seq<Expression, Ws, one<','>, Ws, ExpressionList>, Expression> {};
+    struct ExpressionList:
+        sor<
+            seq<Expression, Ws, one<','>, Ws, ExpressionList>,
+            Expression
+        >
+    {};
 
     /**
      * Argument to an operator

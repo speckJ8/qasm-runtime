@@ -3,18 +3,16 @@
 
 
 #include <iostream>
-
-#include "ast/node.h"
+#include "lexer.h"
+#include "parser_error.h"
+#include "ast/ast.h"
 
 
 namespace qasm_lang {
 
 namespace parser {
 
-    /**
-     * @param source_name qasm input stream
-     * */
-    void parse (std::istream& input);
+    ast::Program parse (std::string filename);
 
 };
 

@@ -2,6 +2,8 @@
 #define __QASM_LANG__AST_EXPRESSION_H__
 
 #include <string>
+#include <optional>
+#include <vector>
 
 namespace qasm_lang {
 
@@ -10,98 +12,106 @@ namespace ast {
     class Expression {};
 
 
-    class RealNumber: Expression {
-    private:
+    class RealNumber: public Expression {
+    public:
         std::string representation;
 
-    public:
         RealNumber (std::string r): representation(r) {};
     };
 
 
-    class NonNegativeInteger: Expression {
-    private:
+    class NonNegativeInteger: public Expression {
+    public:
         std::string representation;
 
-    public:
         NonNegativeInteger (std::string r): representation(r) {};
     };
 
 
-    class EspecialConstant: Expression {
+    class EspecialConstant: public Expression {
     public:
         enum Name { Pi };
-
-    private:
         Name name;
 
-    public:
         EspecialConstant (Name n): name(n) {};
     };
 
 
-    class AdditionExpression: Expression {
-    private:
+    class Variable: public Expression {
+    public:
+        std::string identifier;
+        // in case the variable is a vector and we're indexing it
+        std::optional<unsigned int> index;
+
+        Variable (std::string i): identifier(i), index({}) {};
+        Variable (std::string i, unsigned int _i): identifier(i), index(_i) {};
+
+        inline std::string name () { return identifier; };
+    };
+
+
+    class MinusExpression: public Expression {
+    public:
+        Expression negated_expression;
+
+        MinusExpression (Expression e): negated_expression(e) {};
+    };
+
+
+    class AdditionExpression: public Expression {
+    public:
         Expression left;
         Expression right;
 
-    public:
         AdditionExpression (Expression l, Expression r): left(l), right(r) {};
     };
 
 
-    class MultiplicationExpression: Expression {
-    private:
+    class MultiplicationExpression: public Expression {
+    public:
         Expression left;
         Expression right;
 
-    public:
         MultiplicationExpression (Expression l, Expression r): left(l), right(r) {};
     };
 
 
-    class SubtractionExpression: Expression {
-    private:
+    class SubtractionExpression: public Expression {
+    public:
         Expression left;
         Expression right;
 
-    public:
         SubtractionExpression (Expression l, Expression r): left(l), right(r) {};
     };
 
 
-    class DivisionExpression: Expression {
-    private:
+    class DivisionExpression: public Expression {
+    public:
         Expression left;
         Expression right;
 
-    public:
         DivisionExpression (Expression l, Expression r): left(l), right(r) {};
     };
 
 
-    class ExponentiationExpression: Expression {
-    private:
+    class ExponentiationExpression: public Expression {
+    public:
         Expression left;
         Expression right;
 
-    public:
         ExponentiationExpression (Expression l, Expression r): left(l), right(r) {};
     };
 
 
-    class UnaryOperation: Expression {
+    class UnaryOperation: public Expression {
     public:
         enum UnaryOp { Sin, Cos, Tan, Exp, Ln, Sqrt };
-    private:
         UnaryOp operation;
         Expression target;
 
     public:
         UnaryOperation (UnaryOp o, Expression t): operation(o), target(t) {};
     };
-
-
 };
 
 };

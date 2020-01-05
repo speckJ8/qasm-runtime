@@ -7,7 +7,7 @@
 #include "qgate.h"
 
 
-namespace simulator {
+namespace runtime {
 
 /**
  * Quantum bit
@@ -28,7 +28,7 @@ public:
 
     //bool operator == (Qubit a, Qubit b);
     //arma::cx_double dot (Qubit b);
-    //simulator::Qgate outer (Qubit b);
+    //runtime::Qgate outer (Qubit b);
 
 private:
 

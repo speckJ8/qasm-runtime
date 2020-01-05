@@ -7,7 +7,7 @@
 #include "qubit.h"
 
 
-namespace simulator{
+namespace runtime {
 
 class Qubit;
 
@@ -17,9 +17,8 @@ class Qubit;
 class Qgate {
 
 public:
-
     /**
-     * Pauli matrices
+     * Pauli matrix gates
      * */
     static const Qgate I, X, Y, Z;
 
@@ -36,8 +35,8 @@ public:
 
     Qgate operator * (Qgate& q);
     bool operator == (Qgate& q);
-private:
 
+private:
     /**
      * Pauli matrices
      * */

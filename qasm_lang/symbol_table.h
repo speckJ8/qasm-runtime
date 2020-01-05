@@ -7,96 +7,111 @@
 #include <unordered_map>
 #include <vector>
 
-
 namespace qasm_lang {
 
 namespace symbol_table {
 
     struct Symbol {
     public:
+        // name associated with the symbol
         std::string name;
+        // name of the symbols declaration type
         std::string type_name;
+        // line where the symbol was declared
         unsigned int decl_line;
-        unsigned int decl_col;
 
-        Symbol (std::string n, std::string tn, unsigned int dl, unsigned int dc):
-            name(n), type_name(tn), decl_line(dl), decl_col(dc) {};
+        Symbol (std::string n, std::string tn, unsigned int dl):
+            name(n), type_name(tn), decl_line(dl) {};
 
         virtual ~Symbol () = default;
     };
 
     struct Vector: public Symbol {
     public:
+        // we may have a vector of qbits or a vector of classical bits
         enum Type { Qbit, Cbit };
 
         Type type;
-        std::string name;
         unsigned int dimension;
 
-        Vector (Type t, std::string n, unsigned int d, unsigned int dl, unsigned int dc):
-            Symbol(n, t == Qbit ? "qreg" : "creg", dl, dc), type(t),  name(n), dimension(d)
+        Vector (Type t, std::string n, unsigned int d, unsigned int dl):
+            Symbol(n, t == Qbit ? "qreg" : "creg", dl), type(t), dimension(d)
         {};
     };
 
 
     struct Gate: public Symbol {
     public:
-        std::string name;
         unsigned int nr_parameters;
         unsigned int nr_arguments;
 
-        Gate (std::string n, unsigned int np, unsigned int na, unsigned int dl, unsigned int dc):
-            Symbol(n, "gate", dl, dc), name(n), nr_parameters(np), nr_arguments(na)
+        Gate (std::string n, unsigned int np, unsigned int na, unsigned int dl):
+            Symbol(n, "gate", dl), nr_parameters(np), nr_arguments(na)
         {};
     };
 
 
     struct GateParameter: public Symbol {
     public:
-        std::string name;
         unsigned int position;
 
-        GateParameter (std::string n, unsigned int p, unsigned int dl, unsigned int dc):
-            Symbol(n, "gate parameter", dl, dc), name(n), position(p)
+        GateParameter (std::string n, unsigned int p, unsigned int dl):
+            Symbol(n, "gate parameter", dl), position(p)
         {};
     };
 
-
+    /**
+     * Create new inner scope and move to it.
+     * */
     void push_new_scope ();
+    /**
+     * Destroy current scope and move to parent scope.
+     * */
     void pop_scope ();
+    /**
+     * Pop the current scope and store it so that is can be restored
+     * later.
+     * @param name the name to use to save the scope
+     * */
+    void save_scope (std::string name);
+    /**
+     * Restore a saved scope
+     * */
+    void restore_scope (std::string name);
 
-    void declare_gate (std::string name, unsigned int nr_parameters, unsigned int nr_arguments,
-                       unsigned int decl_line, unsigned int decl_col);
+    void declare_gate (std::string name, unsigned int nr_parameters,
+                       unsigned int nr_arguments, unsigned int decl_line);
 
-    void declare_gate_param (std::string name, unsigned int position, unsigned int decl_line,
-                             unsigned int decl_col);
+    void declare_gate_param (std::string name, unsigned int position,
+                             unsigned int decl_line);
 
-    void declare_qubit (std::string name, unsigned int dimension, unsigned int decl_line,
-                        unsigned int decl_col);
+    void declare_qubit_vector (std::string name, unsigned int dimension,
+                               unsigned int decl_line);
 
-    void declare_cbit (std::string name, unsigned int dimension, unsigned int decl_line,
-                       unsigned int decl_col);
-
+    void declare_cbit_vector (std::string name, unsigned int dimension,
+                              unsigned int decl_line);
 
     /**
-     * Check that qubit with name `name` is declared and has dimension at least `indexed_at`
+     * Check that qubit vector with name `name` is declared and has dimension at 
+     * least `indexed_at`+1
      *
      * If the check is successful returns true and the symbol.
      * If the check is unsuccessful returns false and the symbol identified by `name`, if
      * it is defined.
      * */
     std::tuple<bool, std::optional<qasm_lang::symbol_table::Symbol>>
-    check_qubit (std::string name, unsigned int indexed_at=0);
+    check_qubit_vector (std::string name, unsigned int indexed_at=0);
 
     /**
-     * Check that cbit with name `name` is declared and has dimension at least `indexed_at`
+     * Check that cbit vector with name `name` is declared and has dimension at 
+     * least `indexed_at`+1
      *
      * If the check is successful returns true and the symbol.
      * If the check is unsuccessful returns false and the symbol identified by `name`, if
      * it is defined.
      * */
     std::tuple<bool, std::optional<qasm_lang::symbol_table::Symbol>>
-    check_cbit (std::string name, unsigned int indexed_at=0);
+    check_cbit_vector (std::string name, unsigned int indexed_at=0);
 
     /**
      * Check that gate with name `name` is declared and takes `nr_parameters` parameters
@@ -124,7 +139,13 @@ namespace symbol_table {
         };
 
         std::unique_ptr<Scope> current_scope;
+        std::unordered_map<std::string, Scope> saved_scopes;
     };
+
+    /**
+     * Print the contents 
+     * */
+    void dump ();
 
 };
 

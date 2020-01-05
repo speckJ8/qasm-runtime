@@ -20,45 +20,45 @@ void qasm_lang::symbol_table::pop_scope () {
 }
 
 
-void qasm_lang::symbol_table::declare_qubit (std::string name, unsigned int dimension,
-                                             unsigned int decl_line, unsigned int decl_col)
-{
+void qasm_lang::symbol_table::declare_qubit_vector (std::string name,
+                                                    unsigned int dimension,
+                                                    unsigned int decl_line) {
     assert(current_scope != nullptr);
     current_scope->symbols.insert(
-        { name, Vector(Vector::Type::Qbit, name, dimension, decl_line, decl_col) });
+        { name, Vector(Vector::Type::Qbit, name, dimension, decl_line) });
 }
 
 
-void qasm_lang::symbol_table::declare_cbit (std::string name, unsigned int dimension,
-                                            unsigned int decl_line, unsigned int decl_col)
-{
+void qasm_lang::symbol_table::declare_cbit_vector (std::string name,
+                                                   unsigned int dimension,
+                                                   unsigned int decl_line) {
     assert(current_scope != nullptr);
     current_scope->symbols.insert(
-        { name, Vector(Vector::Type::Cbit, name, dimension, decl_line, decl_col) });
+        { name, Vector(Vector::Type::Cbit, name, dimension, decl_line) });
 }
 
 
-void qasm_lang::symbol_table::declare_gate_param (std::string name, unsigned int position,
-                                                  unsigned int decl_line, unsigned int decl_col)
-{
+void qasm_lang::symbol_table::declare_gate_param (std::string name,
+                                                  unsigned int position,
+                                                  unsigned int decl_line) {
     assert(current_scope != nullptr);
     current_scope->symbols.insert(
-        { name,  GateParameter(name, position, decl_line, decl_col) });
+        { name,  GateParameter(name, position, decl_line) });
 }
 
 
-void qasm_lang::symbol_table::declare_gate (std::string name, unsigned int nr_parameters,
+void qasm_lang::symbol_table::declare_gate (std::string name,
+                                            unsigned int nr_parameters,
                                             unsigned int nr_arguments,
-                                            unsigned int decl_line, unsigned int decl_col)
-{
+                                            unsigned int decl_line) {
     assert(current_scope != nullptr);
     current_scope->symbols.insert(
-        { name, Gate(name, nr_parameters, nr_arguments, decl_line, decl_col) });
+        { name, Gate(name, nr_parameters, nr_arguments, decl_line) });
 }
 
 
 std::tuple<bool, std::optional<qasm_lang::symbol_table::Symbol>>
-qasm_lang::symbol_table::check_qubit (std::string name, unsigned int indexed_at) {
+qasm_lang::symbol_table::check_qubit_vector (std::string name, unsigned int indexed_at) {
     assert(current_scope != nullptr);
 
     auto symbol_pair = current_scope->symbols.find(name);
@@ -83,7 +83,7 @@ qasm_lang::symbol_table::check_qubit (std::string name, unsigned int indexed_at)
 
 
 std::tuple<bool, std::optional<qasm_lang::symbol_table::Symbol>>
-qasm_lang::symbol_table::check_cbit (std::string name, unsigned int indexed_at) {
+qasm_lang::symbol_table::check_cbit_vector (std::string name, unsigned int indexed_at) {
     assert(current_scope != nullptr);
 
     auto symbol_pair = current_scope->symbols.find(name);
@@ -109,8 +109,7 @@ qasm_lang::symbol_table::check_cbit (std::string name, unsigned int indexed_at) 
 
 std::tuple<bool, std::optional<qasm_lang::symbol_table::Symbol>>
 qasm_lang::symbol_table::check_gate (std::string name, unsigned int nr_parameters,
-                                     unsigned int nr_arguments)
-{
+                                     unsigned int nr_arguments) {
     assert(current_scope != nullptr);
 
     auto symbol_pair = current_scope->symbols.find(name);
@@ -123,7 +122,7 @@ qasm_lang::symbol_table::check_gate (std::string name, unsigned int nr_parameter
     }
     auto symbol = symbol_pair->second;
 
-    if (Gate* gate = dynamic_cast<Gate*>(&symbol)) {
+    if (Gate *gate = dynamic_cast<Gate*>(&symbol)) {
         if (gate->nr_parameters == nr_parameters && gate->nr_arguments == nr_arguments)
             return { true, symbol };
         else

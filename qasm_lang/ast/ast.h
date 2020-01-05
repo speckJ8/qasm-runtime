@@ -2,9 +2,8 @@
 #define __QASM_LANG__AST_H__
 
 #include "program.h"
-#include "statement.h"
 #include "expression.h"
-#include "variable.h"
-#include "node.h"
+#include "statement.h"
+#include "list.h"
 
 #endif // __QASM_LANG__AST_H__

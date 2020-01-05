@@ -4,7 +4,10 @@
 #include <utility>
 #include <sstream>
 #include <optional>
+#include <stack>
 
+
+std::stack<qasm_lang::lexer::Token> _token_stack;
 
 const std::string qasm_lang::lexer::Token::OpenQasm = "OPENQASM";
 const std::string qasm_lang::lexer::Token::Include  = "include";
@@ -115,12 +118,22 @@ std::string qasm_lang::lexer::repr (qasm_lang::lexer::Token::Type type) {
         return "EOF";
     case Token::Invalid:
         return "invalid";
+    default:
+        return "N/A";
     }
 }
 
-qasm_lang::lexer::Token qasm_lang::lexer::lex (std::istream& stream, unsigned int curr_line) {
+qasm_lang::lexer::Token qasm_lang::lexer::next_token (std::istream& stream,
+                                                      unsigned int* curr_line) {
+    if (!_token_stack.empty()) {
+        auto tk = std::move(_token_stack.top());
+        _token_stack.pop();
+        return tk;
+    }
+
     auto [ line, column ] = strip_spaces(stream);
-    line += curr_line;
+    line += *curr_line;
+    *curr_line = line;
     char next = stream.get();
 
     if (stream.eof())
@@ -140,9 +153,9 @@ qasm_lang::lexer::Token qasm_lang::lexer::lex (std::istream& stream, unsigned in
     case ')':
         return Token(Token::Symbol_RightParen, Token::Symbol, ")", line, column);
     case '[':
-        return Token(Token::Symbol_RightParen, Token::Symbol, "[", line, column);
+        return Token(Token::Symbol_LeftSquareParen, Token::Symbol, "[", line, column);
     case ']':
-        return Token(Token::Symbol_LeftParen, Token::Symbol, "]", line, column);
+        return Token(Token::Symbol_RightSquareParen, Token::Symbol, "]", line, column);
     case '+':
         return Token(Token::Symbol_Plus, Token::Symbol, "+", line, column);
     case '-':
@@ -226,6 +239,10 @@ qasm_lang::lexer::Token qasm_lang::lexer::lex (std::istream& stream, unsigned in
         return Token(Token::Invalid, Token::InvalidK, std::string(1, next), line, column);
 }
 
+
+void qasm_lang::lexer::pushback_token (qasm_lang::lexer::Token tk) {
+    _token_stack.push(tk);
+}
 
 
 /**

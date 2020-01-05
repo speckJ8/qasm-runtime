@@ -3,6 +3,7 @@
 
 
 #include <vector>
+
 #include "statement.h"
 
 namespace qasm_lang {
@@ -14,10 +15,13 @@ namespace ast {
      * */
     class Program {
     public:
-        float open_qasm_version;
+        std::string filename;
         std::vector<Statement> statements;
+        std::vector<Program> includes;
 
-        Program (): open_qasm_version(2.0) {};
+        Program (std::string filename, std::vector<Statement> s, std::vector<Program> i):
+            filename(filename), statements(s), includes(i)
+        {};
     };
 
 };
