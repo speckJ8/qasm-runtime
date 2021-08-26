@@ -2,8 +2,8 @@ cc_library (
     name = "pegtl",
     hdrs = [ "pegtl.hpp" ],
     visibility = [
-        "//qasm_lang:__pkg__",
-        "//qasm_lang/ast:__pkg__",
+        "//qasm:__pkg__",
+        "//qasm/ast:__pkg__",
     ],
 )
 

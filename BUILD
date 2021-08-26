@@ -12,6 +12,14 @@ cc_binary (
     srcs  = [ "main.cc" ],
     deps  = [
         "config",
-        "//qasm_lang:parser"
+        "//qasm:parser",
+        "//qasm:sema",
+        "//targets/runtime:runtime",
+        "//targets/llvm:code_gen",
     ],
+    linkopts = [
+        # Link options for LLVM
+        "-L/usr/lib",
+        "-lLLVM-9",
+    ]
 )
