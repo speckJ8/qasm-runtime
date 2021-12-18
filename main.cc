@@ -3,7 +3,6 @@
 #include "qasm/sema.h"
 #include "qasm/sema_error.h"
 #include "qasm/symbol_table.h"
-#include "targets/llvm/code_gen.h"
 
 int main (int argc, char** argv) {
     using namespace qasm;
@@ -13,7 +12,6 @@ int main (int argc, char** argv) {
         sema::declare_symbols(program);
         sema::verify(program);
         // symbol_table::dump();
-        target_llvm::generate_code(program);
     } catch (parser::ParserError& e) {
         std::cout << e.to_string() << std::endl;
     } catch (sema::SemanticError& e) {
