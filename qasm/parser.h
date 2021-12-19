@@ -8,13 +8,11 @@
 #include "ast/ast.h"
 
 namespace qasm {
-
 namespace parser {
 
-    ast::Program parse (std::string filename);
+ast::Program parse (std::string filename);
 
 };
-
 };
 
 

@@ -3,8 +3,8 @@
 #include <fstream>
 #include "parser.h"
 
-using namespace qasm;
 
+namespace qasm {
 
 std::string                      parse_header               (std::istream&, std::string);
 std::shared_ptr<ast::Statement>  parse_statement            (std::istream&);
@@ -21,8 +21,9 @@ ast::UnitaryOperation            parse_unitary_operation    (std::istream&, ast:
                                                              std::string);
 ast::OpaqueDeclaration           parse_opaque_declaration   (std::istream&, ast::Context);
 ast::GateDeclaration             parse_gate_declaration     (std::istream&, ast::Context);
-ast::VariableDeclaration         parse_variable_declaration (std::istream&, ast::Context,
-                                             ast::VariableDeclaration::DeclarationType);
+ast::VariableDeclaration         parse_variable_declaration (
+                                                 std::istream&, ast::Context,
+                                                 ast::VariableDeclaration::DeclarationType);
 std::shared_ptr<ast::Statement>  parse_quantum_operation    (std::istream&);
 std::shared_ptr<ast::Expression> parse_expression           (std::istream&);
 std::shared_ptr<ast::Expression> parse_atom_expression      (std::istream&);
@@ -35,7 +36,7 @@ std::shared_ptr<ast::Expression> parse_mult_expression      (std::istream&,
 void                             read_semicolon             (std::istream&);
 
 
-ast::Program qasm::parser::parse (std::string filename) {
+ast::Program parser::parse(std::string filename) {
     using namespace lexer;
 
     std::fstream input_stream;
@@ -87,7 +88,7 @@ ast::Program qasm::parser::parse (std::string filename) {
 /**
  * Parse OpenQasm header and return the requested OpenQasm version.
  * */
-std::string parse_header (std::istream& input_stream, std::string filename) {
+std::string parse_header(std::istream& input_stream, std::string filename) {
     using namespace lexer;
     using namespace parser;
 
@@ -109,7 +110,7 @@ std::string parse_header (std::istream& input_stream, std::string filename) {
 }
 
 
-std::shared_ptr<ast::Statement> parse_statement (std::istream& input_stream) {
+std::shared_ptr<ast::Statement> parse_statement(std::istream& input_stream) {
     using namespace lexer;
     using namespace parser;
 
@@ -192,7 +193,7 @@ std::shared_ptr<ast::Statement> parse_statement (std::istream& input_stream) {
  * if (<id> == <nninteger>) <quantum_op>.
  * The function expecteds the keyworkd `if` to have been read.
  * */
-ast::IfStatement parse_if_statement (std::istream& input_stream, ast::Context c) {
+ast::IfStatement parse_if_statement(std::istream& input_stream, ast::Context c) {
     using namespace lexer;
     using namespace parser;
 
@@ -224,7 +225,7 @@ ast::IfStatement parse_if_statement (std::istream& input_stream, ast::Context c)
  * Parse an opaque declaration:
  * opaque <id> [(<id-list>)] <id-list>
  * */
-ast::OpaqueDeclaration parse_opaque_declaration (std::istream& input_stream,ast::Context c) {
+ast::OpaqueDeclaration parse_opaque_declaration(std::istream& input_stream,ast::Context c) {
     using namespace lexer;
     using namespace parser;
 
@@ -251,7 +252,7 @@ ast::OpaqueDeclaration parse_opaque_declaration (std::istream& input_stream,ast:
  * Parse a barrier operation:
  * barrier <any-list>
  * */
-ast::BarrierOperation parse_barrier_operation (std::istream& input_stream, ast::Context c) {
+ast::BarrierOperation parse_barrier_operation(std::istream& input_stream, ast::Context c) {
     using namespace lexer;
 
     ast::MixedList mixed_list = parse_mixed_list(input_stream);
@@ -263,9 +264,11 @@ ast::BarrierOperation parse_barrier_operation (std::istream& input_stream, ast::
  * Parse classical or quantum variable declaration.
  * <creg|qreg> <name>\[<dim>\]
  * */
-ast::VariableDeclaration parse_variable_declaration (std::istream& input_stream,
-                                                     ast::Context c,
-                                         ast::VariableDeclaration::DeclarationType type) {
+ast::VariableDeclaration parse_variable_declaration(
+            std::istream& input_stream,
+            ast::Context c,
+            ast::VariableDeclaration::DeclarationType type)
+{
     using namespace lexer;
     using namespace parser;
 
@@ -298,7 +301,7 @@ ast::VariableDeclaration parse_variable_declaration (std::istream& input_stream,
 }
 
 
-ast::GateDeclaration parse_gate_declaration (std::istream& input_stream, ast::Context c) {
+ast::GateDeclaration parse_gate_declaration(std::istream& input_stream, ast::Context c) {
     using namespace lexer;
     using namespace parser;
 
@@ -365,7 +368,7 @@ ast::GateDeclaration parse_gate_declaration (std::istream& input_stream, ast::Co
 }
 
 
-std::shared_ptr<ast::Expression> parse_expression (std::istream& input_stream) {
+std::shared_ptr<ast::Expression> parse_expression(std::istream& input_stream) {
     using namespace lexer;
 
     std::shared_ptr<ast::Expression> left = parse_atom_expression(input_stream);
@@ -390,7 +393,7 @@ std::shared_ptr<ast::Expression> parse_expression (std::istream& input_stream) {
  *  - a unary call (sin, cos, ...)
  *  - an expression in parenthesis
  * */
-std::shared_ptr<ast::Expression> parse_atom_expression (std::istream& input_stream) {
+std::shared_ptr<ast::Expression> parse_atom_expression(std::istream& input_stream) {
     using namespace lexer;
     using namespace parser;
 
@@ -483,9 +486,9 @@ std::shared_ptr<ast::Expression> parse_atom_expression (std::istream& input_stre
  * The function expects the binary operation symbol to have been read. The boolean
  * argument `minus` should true if a `-` was read, and false if `+` was read.
  * */
-std::shared_ptr<ast::Expression> parse_add_expression (std::istream& input_stream,
-                                                       std::shared_ptr<ast::Expression> left,
-                                                       bool minus) {
+std::shared_ptr<ast::Expression> parse_add_expression(std::istream& input_stream,
+                                                      std::shared_ptr<ast::Expression> left,
+                                                      bool minus) {
     using namespace lexer;
 
     auto _left = std::move(left);
@@ -536,9 +539,9 @@ std::shared_ptr<ast::Expression> parse_add_expression (std::istream& input_strea
  * The function expects the binary operation symbol to have been read. The boolean
  * argument `division` should true if a `/` was read, and false if `*` was read.
  * */
-std::shared_ptr<ast::Expression> parse_mult_expression (std::istream& input_stream,
-                                                        std::shared_ptr<ast::Expression>left,
-                                                        bool division) {
+std::shared_ptr<ast::Expression> parse_mult_expression(std::istream& input_stream,
+                                                       std::shared_ptr<ast::Expression>left,
+                                                       bool division) {
     using namespace lexer;
 
     auto _left = std::move(left);
@@ -575,7 +578,7 @@ std::shared_ptr<ast::Expression> parse_mult_expression (std::istream& input_stre
  * Parse an expression list:
  * <expression> | <expression> , <expression-list>
  * */
-ast::ExpressionList parse_expression_list (std::istream& input_stream) {
+ast::ExpressionList parse_expression_list(std::istream& input_stream) {
     using namespace lexer;
 
     std::vector<std::shared_ptr<ast::Expression>> expression_list;
@@ -602,7 +605,7 @@ ast::ExpressionList parse_expression_list (std::istream& input_stream) {
  * Parse a list of identifiers:
  * <id> | <id>, <id-list>
  * */
-ast::IdentifierList parse_id_list (std::istream& input_stream) {
+ast::IdentifierList parse_id_list(std::istream& input_stream) {
     using namespace lexer;
     using namespace parser;
 
@@ -638,7 +641,7 @@ ast::IdentifierList parse_id_list (std::istream& input_stream) {
  * Parse a list that can contain variables and variable indexing's
  * (<id> | <id>[<index>]) | (<id> | <id>[<index>]), <mixed-list>
  * */
-ast::MixedList parse_mixed_list (std::istream& input_stream) {
+ast::MixedList parse_mixed_list(std::istream& input_stream) {
     using namespace lexer;
 
     ast::Variable first = parse_argument(input_stream);
@@ -663,7 +666,7 @@ ast::MixedList parse_mixed_list (std::istream& input_stream) {
 /**
  * An argument is either <identifier> or <identifier>[<index>]
  * */
-ast::Variable parse_argument (std::istream& input_stream) {
+ast::Variable parse_argument(std::istream& input_stream) {
     using namespace lexer;
     using namespace parser;
 
@@ -699,7 +702,7 @@ ast::Variable parse_argument (std::istream& input_stream) {
  * measure <arg> -> <arg>;
  * The function expects the measure keyword to have been read.
  * */
-ast::MeasureOperation parse_measure_operation (std::istream& input_stream, ast::Context c) {
+ast::MeasureOperation parse_measure_operation(std::istream& input_stream, ast::Context c) {
     using namespace lexer;
     using namespace parser;
 
@@ -718,7 +721,7 @@ ast::MeasureOperation parse_measure_operation (std::istream& input_stream, ast::
  * reset <arg>;
  * The function expects the reset keyword to have been read.
  * */
-ast::ResetOperation parse_reset_operation (std::istream& input_stream, ast::Context c) {
+ast::ResetOperation parse_reset_operation(std::istream& input_stream, ast::Context c) {
     using namespace lexer;
     using namespace parser;
 
@@ -734,9 +737,9 @@ ast::ResetOperation parse_reset_operation (std::istream& input_stream, ast::Cont
  * <operator> () <anylist>;
  * <operator> (<expression_list>) <anylist>;
  * */
-ast::UnitaryOperation parse_unitary_operation (std::istream& input_stream, ast::Context c,
-                                               ast::UnitaryOperation::Operator op,
-                                               std::string operator_name) {
+ast::UnitaryOperation parse_unitary_operation(std::istream& input_stream, ast::Context c,
+                                              ast::UnitaryOperation::Operator op,
+                                              std::string operator_name) {
     using namespace lexer;
     using namespace parser;
 
@@ -798,7 +801,7 @@ ast::UnitaryOperation parse_unitary_operation (std::istream& input_stream, ast::
 }
 
 
-std::shared_ptr<ast::Statement> parse_quantum_operation (std::istream& input_stream) {
+std::shared_ptr<ast::Statement> parse_quantum_operation(std::istream& input_stream) {
     using namespace lexer;
     using namespace parser;
 
@@ -830,7 +833,7 @@ std::shared_ptr<ast::Statement> parse_quantum_operation (std::istream& input_str
     }
 }
 
-void read_semicolon (std::istream& input_stream) {
+void read_semicolon(std::istream& input_stream) {
     using namespace lexer;
     using namespace parser;
     Token tk = next_token(input_stream);
@@ -838,4 +841,6 @@ void read_semicolon (std::istream& input_stream) {
         throw ParserError("expected semicolon ';', but found " + tk.value,
                           tk.line, tk.column);
     }
+}
+
 }

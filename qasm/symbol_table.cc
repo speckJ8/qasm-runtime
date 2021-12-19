@@ -2,7 +2,9 @@
 #include <cassert>
 #include <iostream>
 
-void qasm::symbol_table::push_new_scope () {
+namespace qasm {
+
+void symbol_table::push_new_scope() {
     if (current_scope == nullptr) {
         current_scope = std::make_shared<Scope>();
     } else {
@@ -10,7 +12,7 @@ void qasm::symbol_table::push_new_scope () {
     }
 }
 
-void qasm::symbol_table::pop_scope () {
+void symbol_table::pop_scope() {
     if (current_scope == nullptr)
         push_new_scope();
 
@@ -19,7 +21,7 @@ void qasm::symbol_table::pop_scope () {
     current_scope = std::move(outer_scope);
 }
 
-void qasm::symbol_table::pop_and_save_scope (std::string name) {
+void symbol_table::pop_and_save_scope(std::string name) {
     std::shared_ptr<Scope> outer_scope = std::move(current_scope->outer_scope);
     std::shared_ptr<Scope> old_scope = std::move(current_scope);
     current_scope = std::move(outer_scope);
@@ -30,7 +32,7 @@ void qasm::symbol_table::pop_and_save_scope (std::string name) {
     }
 }
 
-bool qasm::symbol_table::restore_scope (std::string name) {
+bool symbol_table::restore_scope(std::string name) {
     auto _scope = current_scope->saved_scopes.find(name);
     if (_scope == current_scope->saved_scopes.end()) {
         return false;
@@ -42,14 +44,14 @@ bool qasm::symbol_table::restore_scope (std::string name) {
     }
 }
 
-void qasm::symbol_table::declare (std::shared_ptr<qasm::symbol_table::Symbol> s) {
+void symbol_table::declare(std::shared_ptr<symbol_table::Symbol> s) {
     if (current_scope == nullptr)
         push_new_scope();
     current_scope->symbols.insert({ s->name, s });
 }
 
-std::optional<std::shared_ptr<qasm::symbol_table::Symbol>>
-qasm::symbol_table::get (std::string name, bool this_scope) {
+std::optional<std::shared_ptr<symbol_table::Symbol>> symbol_table::get(std::string name,
+                                                                       bool this_scope) {
     if (current_scope == nullptr)
         push_new_scope();
 
@@ -72,7 +74,7 @@ qasm::symbol_table::get (std::string name, bool this_scope) {
     return std::nullopt;
 }
 
-void qasm::symbol_table::dump () {
+void symbol_table::dump() {
     assert(current_scope != nullptr);
 
     std::cout << "------- root -----------------------------------------------\n";
@@ -92,4 +94,6 @@ void qasm::symbol_table::dump () {
         }
         std::cout << "-------------------------------------------------------------\n\n";
     }
+}
+
 }

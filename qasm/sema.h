@@ -11,9 +11,8 @@ namespace qasm {
 
 namespace sema {
 
-void declare_symbols (ast::Program& program);
-
-void verify (ast::Program& program);
+void declare_symbols(ast::Program& program);
+void verify(ast::Program& program);
 
 };
 

@@ -1,6 +1,8 @@
 #include "sema.h"
 
-void qasm::sema::declare_symbols (qasm::ast::Program& program) {
+namespace qasm {
+
+void sema::declare_symbols(ast::Program& program) {
     for (auto&& stmt : program.statements) {
         try {
             stmt->declare_symbols();
@@ -10,7 +12,7 @@ void qasm::sema::declare_symbols (qasm::ast::Program& program) {
     }
 }
 
-void qasm::sema::verify (qasm::ast::Program& program) {
+void sema::verify(ast::Program& program) {
     for (auto&& stmt : program.statements) {
         try {
             stmt->verify();
@@ -18,4 +20,6 @@ void qasm::sema::verify (qasm::ast::Program& program) {
             throw SemanticError(err.msg, err.line, err.column, program.filename);
         }
     }
+}
+
 }

@@ -7,27 +7,29 @@
 #include <stack>
 #include <iostream>
 
-std::stack<qasm::lexer::Token> _token_stack;
+namespace qasm {
 
-const std::string qasm::lexer::Token::OpenQasm = "OPENQASM";
-const std::string qasm::lexer::Token::Include  = "include";
-const std::string qasm::lexer::Token::Opaque   = "opaque";
-const std::string qasm::lexer::Token::If       = "if";
-const std::string qasm::lexer::Token::Barrier  = "barrier";
-const std::string qasm::lexer::Token::Qreg     = "qreg";
-const std::string qasm::lexer::Token::Creg     = "creg";
-const std::string qasm::lexer::Token::Gate     = "gate";
-const std::string qasm::lexer::Token::Measure  = "measure";
-const std::string qasm::lexer::Token::Reset    = "reset";
-const std::string qasm::lexer::Token::U        = "U";
-const std::string qasm::lexer::Token::CX       = "CX";
-const std::string qasm::lexer::Token::Pi       = "pi";
-const std::string qasm::lexer::Token::Cos      = "cos";
-const std::string qasm::lexer::Token::Sin      = "sin";
-const std::string qasm::lexer::Token::Tan      = "tan";
-const std::string qasm::lexer::Token::Exp      = "exp";
-const std::string qasm::lexer::Token::Ln       = "ln";
-const std::string qasm::lexer::Token::Sqrt     = "sqrt";
+std::stack<lexer::Token> _token_stack;
+
+const std::string lexer::Token::OpenQasm = "OPENQASM";
+const std::string lexer::Token::Include  = "include";
+const std::string lexer::Token::Opaque   = "opaque";
+const std::string lexer::Token::If       = "if";
+const std::string lexer::Token::Barrier  = "barrier";
+const std::string lexer::Token::Qreg     = "qreg";
+const std::string lexer::Token::Creg     = "creg";
+const std::string lexer::Token::Gate     = "gate";
+const std::string lexer::Token::Measure  = "measure";
+const std::string lexer::Token::Reset    = "reset";
+const std::string lexer::Token::U        = "U";
+const std::string lexer::Token::CX       = "CX";
+const std::string lexer::Token::Pi       = "pi";
+const std::string lexer::Token::Cos      = "cos";
+const std::string lexer::Token::Sin      = "sin";
+const std::string lexer::Token::Tan      = "tan";
+const std::string lexer::Token::Exp      = "exp";
+const std::string lexer::Token::Ln       = "ln";
+const std::string lexer::Token::Sqrt     = "sqrt";
 
 
 std::pair<unsigned int, unsigned int> strip_spaces(std::istream& stream);
@@ -37,7 +39,7 @@ std::optional<std::string> read_literal_string(std::istream& stream);
 std::string read_comment(std::istream& stream);
 
 
-std::string qasm::lexer::repr(qasm::lexer::Token::Type type) {
+std::string lexer::repr(lexer::Token::Type type) {
     switch (type) {
     case Token::Keyword_OpenQasm:
         return Token::OpenQasm;
@@ -126,7 +128,7 @@ std::string qasm::lexer::repr(qasm::lexer::Token::Type type) {
     }
 }
 
-qasm::lexer::Token qasm::lexer::_next_token(std::istream& stream) {
+lexer::Token lexer::_next_token(std::istream& stream) {
     if (!_token_stack.empty()) {
         auto tk = std::move(_token_stack.top());
         _token_stack.pop();
@@ -136,17 +138,17 @@ qasm::lexer::Token qasm::lexer::_next_token(std::istream& stream) {
     auto [ line, column ] = strip_spaces(stream);
     _line += line;
     if (line > 0) {
-        qasm::lexer::_column = column;
+        lexer::_column = column;
     } else {
-        qasm::lexer::_column += column;
+        lexer::_column += column;
     }
     char next = stream.get();
-    auto col = qasm::lexer::_column;
+    auto col = lexer::_column;
 
     if (stream.eof())
         return Token(Token::Eof, Token::EofK, "", _line, col);
  
-    qasm::lexer::_column++;
+    lexer::_column++;
 
     switch (next) {
     case '{':
@@ -181,7 +183,7 @@ qasm::lexer::Token qasm::lexer::_next_token(std::istream& stream) {
         return Token(Token::Symbol_Exp, Token::Symbol, "^", _line, col);
     case '=':
         if (stream.get() == '=') {
-            qasm::lexer::_column++;
+            lexer::_column++;
             return Token(Token::Symbol_EqEq, Token::Symbol, "==", _line, col);
         } else {
             return Token(Token::Invalid, Token::InvalidK, "", _line, col);
@@ -192,7 +194,7 @@ qasm::lexer::Token qasm::lexer::_next_token(std::istream& stream) {
 
     if (std::isalpha(next) || next == '_') {
         std::string text = read_string(next, stream);
-        qasm::lexer::_column += text.size() - 1;
+        lexer::_column += text.size() - 1;
         if (text == Token::OpenQasm)
             return Token(Token::Keyword_OpenQasm, Token::Keyword, text, _line, col);
         if (text == Token::Include)
@@ -236,7 +238,7 @@ qasm::lexer::Token qasm::lexer::_next_token(std::istream& stream) {
     }
     else if (std::isdigit(next)) {
         auto [ num, isinteger ] = read_number(next, stream);
-        qasm::lexer::_column += num.size() - 1;
+        lexer::_column += num.size() - 1;
         if (isinteger)
             return Token(Token::NonNegativeInteger, Token::Literal, num, _line, col);
         else
@@ -245,8 +247,8 @@ qasm::lexer::Token qasm::lexer::_next_token(std::istream& stream) {
     else if (next == '"') {
         auto str = read_literal_string(stream);
         if (str) {
-            col = qasm::lexer::_column;
-            qasm::lexer::_column += str.value().size() + 1;
+            col = lexer::_column;
+            lexer::_column += str.value().size() + 1;
             return Token(Token::String, Token::Literal, str.value(), _line, col);
         }
         else
@@ -256,13 +258,13 @@ qasm::lexer::Token qasm::lexer::_next_token(std::istream& stream) {
         return Token(Token::Invalid, Token::InvalidK, std::string(1, next), _line, col);
     }
 }
-qasm::lexer::Token qasm::lexer::next_token(std::istream& input_stream) {
+lexer::Token lexer::next_token(std::istream& input_stream) {
     auto tok = _next_token(input_stream);
     // std::cout << "produced " << tok.value << "\n";
     return tok;
 }
 
-void qasm::lexer::pushback_token(qasm::lexer::Token tk) {
+void lexer::pushback_token(lexer::Token tk) {
     // std::cout << "pushback " << tk.value << "\n";
     _token_stack.push(tk);
 }
@@ -340,4 +342,6 @@ std::optional<std::string> read_literal_string(std::istream& stream) {
 std::string read_comment(std::istream& stream) {
     while (stream.get() != '\n' && !stream.eof());
     return "";
+}
+
 }
