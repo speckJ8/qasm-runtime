@@ -50,6 +50,7 @@ public:
         Symbol_Divide,
         Symbol_Exp,
 
+        Comment,
         Eof, 
         Invalid,
     };
@@ -60,6 +61,7 @@ public:
         Keyword,
         Symbol,
 
+        CommentK,
         EofK,
         InvalidK,
     };

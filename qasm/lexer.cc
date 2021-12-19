@@ -30,13 +30,14 @@ const std::string qasm::lexer::Token::Ln       = "ln";
 const std::string qasm::lexer::Token::Sqrt     = "sqrt";
 
 
-std::pair<unsigned int, unsigned int> strip_spaces (std::istream& stream);
-std::pair<std::string, bool> read_number (char first_char, std::istream& stream);
-std::string read_string (char first_char, std::istream& stream);
-std::optional<std::string> read_literal_string (std::istream& stream);
+std::pair<unsigned int, unsigned int> strip_spaces(std::istream& stream);
+std::pair<std::string, bool> read_number(char first_char, std::istream& stream);
+std::string read_string(char first_char, std::istream& stream);
+std::optional<std::string> read_literal_string(std::istream& stream);
+std::string read_comment(std::istream& stream);
 
 
-std::string qasm::lexer::repr (qasm::lexer::Token::Type type) {
+std::string qasm::lexer::repr(qasm::lexer::Token::Type type) {
     switch (type) {
     case Token::Keyword_OpenQasm:
         return Token::OpenQasm;
@@ -107,23 +108,25 @@ std::string qasm::lexer::repr (qasm::lexer::Token::Type type) {
     case Token::Symbol_Exp:
         return "^";
     case Token::Id:
-        return "an identifier";
+        return "<identifier>";
     case Token::Real:
-        return "a real number";
+        return "<real-number>";
     case Token::NonNegativeInteger:
-        return "a non negative integer";
+        return "<non-negative-integer>";
     case Token::String:
-        return "a string";
+        return "<string>";
     case Token::Eof:
-        return "EOF";
+        return "<EOF>";
     case Token::Invalid:
-        return "invalid";
+        return "<invalid>";
+    case Token::Comment:
+        return "<comment>";
     default:
         return "N/A";
     }
 }
 
-qasm::lexer::Token qasm::lexer::_next_token (std::istream& stream) {
+qasm::lexer::Token qasm::lexer::_next_token(std::istream& stream) {
     if (!_token_stack.empty()) {
         auto tk = std::move(_token_stack.top());
         _token_stack.pop();
@@ -138,7 +141,6 @@ qasm::lexer::Token qasm::lexer::_next_token (std::istream& stream) {
         qasm::lexer::_column += column;
     }
     char next = stream.get();
-
     auto col = qasm::lexer::_column;
 
     if (stream.eof())
@@ -150,7 +152,7 @@ qasm::lexer::Token qasm::lexer::_next_token (std::istream& stream) {
     case '{':
         return Token(Token::Symbol_LeftBracket, Token::Symbol, "{", _line, col);
     case '}':
-        return Token(Token::Symbol_RightBracket, Token::Symbol, "{", _line, col);
+        return Token(Token::Symbol_RightBracket, Token::Symbol, "}", _line, col);
     case ';':
         return Token(Token::Symbol_Semicolon, Token::Symbol, ";", _line, col);
     case ',':
@@ -184,6 +186,8 @@ qasm::lexer::Token qasm::lexer::_next_token (std::istream& stream) {
         } else {
             return Token(Token::Invalid, Token::InvalidK, "", _line, col);
         }
+    case '#':
+        return Token(Token::Comment, Token::CommentK, read_comment(stream), _line, col);
     }
 
     if (std::isalpha(next) || next == '_') {
@@ -252,13 +256,13 @@ qasm::lexer::Token qasm::lexer::_next_token (std::istream& stream) {
         return Token(Token::Invalid, Token::InvalidK, std::string(1, next), _line, col);
     }
 }
-qasm::lexer::Token qasm::lexer::next_token (std::istream& input_stream) {
+qasm::lexer::Token qasm::lexer::next_token(std::istream& input_stream) {
     auto tok = _next_token(input_stream);
     // std::cout << "produced " << tok.value << "\n";
     return tok;
 }
 
-void qasm::lexer::pushback_token (qasm::lexer::Token tk) {
+void qasm::lexer::pushback_token(qasm::lexer::Token tk) {
     // std::cout << "pushback " << tk.value << "\n";
     _token_stack.push(tk);
 }
@@ -268,7 +272,7 @@ void qasm::lexer::pushback_token (qasm::lexer::Token tk) {
  * Returns the number of line breaks encounterd and the number of spaces blanks
  * the last line break.
  * */
-std::pair<unsigned int, unsigned int> strip_spaces (std::istream& stream) {
+std::pair<unsigned int, unsigned int> strip_spaces(std::istream& stream) {
     unsigned int nr_breaks = 0;
     unsigned int last_spaces = 0;
 
@@ -285,7 +289,7 @@ std::pair<unsigned int, unsigned int> strip_spaces (std::istream& stream) {
     return { nr_breaks, last_spaces };
 }
 
-std::string read_string (char first_char, std::istream& stream) {
+std::string read_string(char first_char, std::istream& stream) {
     std::string result(1, first_char);
     int prox = stream.peek();
     while (std::isalnum(prox) || prox == '_') {
@@ -302,7 +306,7 @@ std::string read_string (char first_char, std::istream& stream) {
  * if it is a real.
  * TODO: read real number in scientific notation
  * */
-std::pair<std::string, bool> read_number (char first_char, std::istream& stream) {
+std::pair<std::string, bool> read_number(char first_char, std::istream& stream) {
     std::string result(1, first_char);
     bool isinteger = true;
     int prox = stream.peek();
@@ -315,14 +319,13 @@ std::pair<std::string, bool> read_number (char first_char, std::istream& stream)
     return { result, isinteger };
 }
 
-
 /**
  * Read the interior of a string: "<interior>"
  * Returns the string or empty if the expression
  * is not terminated by a "
  * TODO: support escape characters
  * */
-std::optional<std::string> read_literal_string (std::istream& stream) {
+std::optional<std::string> read_literal_string(std::istream& stream) {
     std::string result = "";
     char prox = stream.get();
     while (prox != '"' && !stream.eof()) {
@@ -332,4 +335,9 @@ std::optional<std::string> read_literal_string (std::istream& stream) {
     if (stream.eof())
         return std::nullopt;
     return result;
+}
+
+std::string read_comment(std::istream& stream) {
+    while (stream.get() != '\n' && !stream.eof());
+    return "";
 }
