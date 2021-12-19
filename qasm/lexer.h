@@ -91,7 +91,7 @@ public:
     std::string value;
     unsigned int line, column;
 
-    Token (Type type, Kind kind, std::string value, unsigned int line, unsigned int column):
+    Token(Type type, Kind kind, std::string value, unsigned int line, unsigned int column):
         type(type), kind(kind), value(value), line(line), column(column) {};
 };
 
@@ -99,20 +99,19 @@ public:
  * Return the string value for `type` if possible, i.e,
  * if `type` is of keyword or symbol kinds.
  * */
-std::string repr (Token::Type type);
+std::string repr(Token::Type type);
 
 
 /**
  * Return the next lexical token.
  * */
-Token next_token (std::istream& stream);
-Token _next_token (std::istream& stream);
-
+Token next_token(std::istream& stream);
+Token _next_token(std::istream& stream);
 
 /**
  * Return a lookahead token.
  * */
-void pushback_token (Token tk);
+void pushback_token(Token tk);
 
 namespace {
     /**
