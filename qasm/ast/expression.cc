@@ -3,7 +3,9 @@
 #include "qasm/symbol_table.h"
 #include <iostream>
 
-void qasm::ast::MinusExpression::verify () {
+namespace qasm {
+
+void ast::MinusExpression::verify() {
     negated_expression->verify();
 }
 
@@ -12,7 +14,7 @@ void qasm::ast::MinusExpression::verify () {
  * * check if variable is defined
  * * check if indexing is valid
  * */
-void qasm::ast::Variable::verify () {
+void ast::Variable::verify() {
     auto symbol = symbol_table::get(identifier);
     if (!symbol) {
         throw sema::SemanticError("Variable " + identifier + " is not defined",
@@ -53,7 +55,7 @@ void qasm::ast::Variable::verify () {
 /**
  * Check if the variable was declared as a qreg
  * */
-bool qasm::ast::Variable::is_qubit () {
+bool ast::Variable::is_qubit() {
     auto symbol = symbol_table::get(identifier);
     if (!symbol) {
         throw sema::SemanticError("Variable " + identifier + " is not defined",
@@ -88,9 +90,9 @@ bool qasm::ast::Variable::is_qubit () {
                               context.line, context.column);
 }
 
-void verify_binary (std::shared_ptr<qasm::ast::Expression>& left,
-                    std::shared_ptr<qasm::ast::Expression>& right,
-                    std::string name) {
+void verify_binary(std::shared_ptr<ast::Expression>& left,
+                   std::shared_ptr<ast::Expression>& right,
+                   std::string name) {
     using namespace qasm;
 
     left->verify();
@@ -117,27 +119,27 @@ void verify_binary (std::shared_ptr<qasm::ast::Expression>& left,
     }
 }
 
-void qasm::ast::AdditionExpression::verify () {
+void ast::AdditionExpression::verify() {
     verify_binary(left, right, "Addition");
 }
 
-void qasm::ast::SubtractionExpression::verify () {
+void ast::SubtractionExpression::verify() {
     verify_binary(left, right, "Subtraction");
 }
 
-void qasm::ast::MultiplicationExpression::verify () {
+void ast::MultiplicationExpression::verify() {
     verify_binary(left, right, "Multiplication");
 }
 
-void qasm::ast::DivisionExpression::verify () {
+void ast::DivisionExpression::verify() {
     verify_binary(left, right, "Division");
 }
 
-void qasm::ast::ExponentiationExpression::verify () {
+void ast::ExponentiationExpression::verify() {
     verify_binary(left, right, "Exponentiation");
 }
 
-void qasm::ast::UnaryOperation::verify () {
+void ast::UnaryOperation::verify() {
     target->verify();
 
     if (!target->is_atom()) {
@@ -150,4 +152,6 @@ void qasm::ast::UnaryOperation::verify () {
                                       target->to_string() + " is a qubit",
                                   target->context.line, target->context.column);
     }
+}
+
 }

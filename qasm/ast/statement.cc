@@ -1,11 +1,13 @@
 #include "statement.h"
 #include "qasm/symbol_table.h"
 
-void qasm::ast::IfStatement::declare_symbols () {
+namespace qasm {
+
+void ast::IfStatement::declare_symbols() {
     conditional_operation->declare_symbols();
 }
 
-void qasm::ast::OpaqueDeclaration::declare_symbols () {
+void ast::OpaqueDeclaration::declare_symbols() {
     using namespace qasm;
 
     auto symbol = symbol_table::get(identifier, true);
@@ -59,7 +61,7 @@ void qasm::ast::OpaqueDeclaration::declare_symbols () {
     symbol_table::pop_and_save_scope(identifier);
 }
 
-void qasm::ast::VariableDeclaration::declare_symbols () {
+void ast::VariableDeclaration::declare_symbols() {
     using namespace qasm;
 
     auto symbol = symbol_table::get(identifier, true);
@@ -77,7 +79,7 @@ void qasm::ast::VariableDeclaration::declare_symbols () {
     symbol_table::declare(vector);
 }
 
-void qasm::ast::GateDeclaration::declare_symbols () {
+void ast::GateDeclaration::declare_symbols() {
     using namespace qasm;
 
     auto symbol = symbol_table::get(identifier, true);
@@ -137,13 +139,13 @@ void qasm::ast::GateDeclaration::declare_symbols () {
 /**
  * Verify the condition and body of the if statement
  * */
-void qasm::ast::IfStatement::verify () {
+void ast::IfStatement::verify() {
     variable.verify();
     target_to_compare->verify();
     conditional_operation->verify();
 }
 
-void qasm::ast::GateDeclaration::verify () {
+void ast::GateDeclaration::verify() {
     symbol_table::restore_scope(identifier);
     for (auto&& stmt : body) {
         stmt->verify();
@@ -155,7 +157,7 @@ void qasm::ast::GateDeclaration::verify () {
  * Verify that what is being measured is a qubit register and that
  * the target is a cbit register.
  * */
-void qasm::ast::MeasureOperation::verify () {
+void ast::MeasureOperation::verify() {
     source.verify();
     target.verify();
     if (!source.is_qubit()) {
@@ -172,7 +174,7 @@ void qasm::ast::MeasureOperation::verify () {
 /**
  * Verify that the reset target is a qubit or a cbit.
  * */
-void qasm::ast::ResetOperation::verify () {
+void ast::ResetOperation::verify() {
     target.verify();
 }
 
@@ -180,7 +182,7 @@ void qasm::ast::ResetOperation::verify () {
  * Verify that the operator is called with the appropriate parameters
  * and arguments
  * */
-void qasm::ast::UnitaryOperation::verify () {
+void ast::UnitaryOperation::verify() {
     if (op == Operator::Defined) {
         auto symbol = symbol_table::get(operator_name);
         if (!symbol) {
@@ -258,8 +260,10 @@ void qasm::ast::UnitaryOperation::verify () {
 /**
  * Verify that the names in the operation are declared as variables
  * */
-void qasm::ast::BarrierOperation::verify () {
+void ast::BarrierOperation::verify() {
     for (auto& variable : variables.mixed_list) {
         variable.verify();
     }
+}
+
 }

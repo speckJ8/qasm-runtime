@@ -7,23 +7,23 @@ namespace qasm {
 
 namespace ast {
 
-    /**
-     * Information about where an AST node was parsed
-     * */
-    struct Context {
-    public:
-        unsigned int line;
-        unsigned int column;
-        std::string filename;
+/**
+ * Information about where an AST node was parsed
+ * */
+struct Context {
+public:
+    unsigned int line;
+    unsigned int column;
+    std::string filename;
 
-        Context (unsigned int l, unsigned int c, std::string f):
-            line(l), column(c), filename(f)
-        {};
+    Context(unsigned int l, unsigned int c, std::string f):
+        line(l), column(c), filename(f)
+    {};
 
-        Context (unsigned int l, unsigned int c):
-            line(l), column(c)
-        {};
-    };
+    Context(unsigned int l, unsigned int c):
+        line(l), column(c)
+    {};
+};
 
 };
 
