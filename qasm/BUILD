@@ -2,6 +2,9 @@ cc_library (
     name = "lexer",
     srcs = [ "lexer.cc" ],
     hdrs = [ "lexer.h" ],
+    visibility = [
+        "//tests:__pkg__",
+    ]
 )
 
 cc_library (
@@ -44,4 +47,5 @@ cc_library (
     srcs = [ "symbol_table.cc" ],
     hdrs = [ "symbol_table.h" ],
     visibility = [ "//qasm/ast:__pkg__" ],
+
 )
