@@ -40,5 +40,5 @@ cc_library (
     name = "ast",
     hdrs = [ "ast.h" ],
     deps = [ "program", "statement", "expression", "list", ],
-    visibility = [ "//qasm:__pkg__", "//targets/llvm:__pkg__" ],
+    visibility = [ "//qasm:__pkg__" ],
 )
