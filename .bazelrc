@@ -1,5 +1,0 @@
-build --show_timestamps \
-        --show_progress \
-        --symlink_prefix=/ \
-        --cxxopt='--std=c++17' \
-        --spawn_strategy=standalone
