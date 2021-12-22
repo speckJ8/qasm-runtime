@@ -31,19 +31,8 @@ enum Option {
     Check,
 };
 
-/**
- * Check if a boolean flag is set
- * */
 bool isset (Option option);
-
-/**
- * Get the value of a string configuration option
- * */
 std::string get (Option option);
-
-/**
- * Parse configuration options from command line arguments
- * */
 void parse_cmd_config (int argc, char** argv);
 
 namespace {
