@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <tuple>
-#include "qasm/lexer.h"
+#include "lang/lexer.hpp"
 
 TEST(Lexer, Basic) {
-    using namespace qasm::lexer;
+    using namespace lang;
+    using namespace lang::lexer;
 
-    std::istringstream input(
+    std::istringstream ss(
         "OPENQASM 2.0;"
         "qreg qq[2];"
         "creg cc[2];"
@@ -22,6 +23,7 @@ TEST(Lexer, Basic) {
         "measure qq -> cc;"
         "reset qq;"
     );
+    Input input(ss);
     std::vector<std::tuple<Token::Type, Token::Kind, std::string>> tokens = {
         // OPENQASM 2.0;
         {
@@ -481,18 +483,19 @@ TEST(Lexer, Basic) {
         },
     };
 
-    for (int t = 0; t < tokens.size(); t++) {
-        auto token = tokens[t];
+    int i = 0;
+    for (auto t = tokens.begin(); t != tokens.end(); t++, i++) {
+        auto token = *t;
         Token tk = next_token(input);
         EXPECT_EQ(tk.type, std::get<0>(token))
-                << "[" << t << "]"
+                << "[" << i << "]"
                 << "expected value: " << std::get<2>(token) << "\n"
-                << "[" << t << "]"
+                << "[" << i << "]"
                 << "actual value: " << tk.value;
         EXPECT_EQ(tk.kind, std::get<1>(token))
-                << "[" << t << "]"
+                << "[" << i << "]"
                 << "expected value: " << std::get<2>(token) << "\n"
-                << "[" << t << "]"
+                << "[" << i << "]"
                 << "actual value: " << tk.value;
         EXPECT_EQ(tk.value, std::get<2>(token));
     }
