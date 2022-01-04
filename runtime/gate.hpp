@@ -1,14 +1,14 @@
 #ifndef __RUNTIME__GATE_H__
 #define __RUNTIME__GATE_H__
 
+#include "math/unitary.hpp"
 #include <complex>
+#include <optional>
 #include <vector>
-#include "math/math.hpp"
 
 namespace runtime {
 
 class Gate {
-
 public:
     /**
      * A gate can be defined in terms of other previously defined
@@ -24,7 +24,7 @@ public:
      * case the target indices of bar are 0 and 1.
      * */
     struct SubGate {
-        Gate *gate;
+        Gate& gate;
         std::vector<unsigned int> target_qubits;
     };
 
@@ -44,7 +44,7 @@ public:
      * | exp(i(phi + lambda)/2)sin(theta/2)    exp(i(phi + lambda)/2)cos(theta/2)  |
      *  -                                                                         -
      * */
-    Gate(double theta, double phi, double lambda);
+    Gate(float theta, float phi, float lambda);
 
     /**
      * Define a gate in terms of other gates.
@@ -57,33 +57,25 @@ public:
     // State operator()(State& state);
 
 private:
-    Gate(math::unitary2d_t const unitary, unsigned int qubits): _qubits(qubits) {
-        this->_unitary.assign(unitary, unitary + 4);
-    };
-    Gate(math::unitary_t const unitary, unsigned int qubits) :
-        _unitary(unitary), _qubits(qubits) {};
+    Gate(math::unitary_t const unitary): _unitary(unitary) {};
 
     /**
      * Pauli matrices
      * */
-    static const math::unitary2d_t _I, _X, _Y, _Z;
+    static const math::unitary_t _I, _X, _Y, _Z;
     /**
      * Controlled not matrix
      * */
-    static const math::unitary4d_t _CX;
+    static const math::unitary_t _CX;
 
     /**
-     * 2x2 unitary underlying the gate
+     * The unitary matrix underlying the gate
      * */
-    math::unitary_t _unitary;
-    /**
-     * Dimension of the gate in terms of qubits.
-     * It must be satisfied that _unitary.size() == (2^(_qubits))^2
-     * */
-    unsigned int _qubits;
+    std::optional<math::unitary_t> _unitary;
+
+    std::vector<SubGate> sub_gates;
 };
 
-};
-
+}
 
 #endif // __RUNTIME__GATE_H__
