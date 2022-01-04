@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <unordered_map>
 #include <iostream>
+#include <optional>
 
 namespace lang {
 
@@ -21,12 +22,12 @@ public:
     // line where the symbol was declared
     unsigned int decl_line;
 
-    Symbol (std::string n, std::string tn, unsigned int dl):
+    Symbol(std::string n, std::string tn, unsigned int dl):
         name(n), type_name(tn), decl_line(dl) {};
 
-    virtual ~Symbol () = default;
+    virtual ~Symbol() = default;
 
-    virtual std::string to_string () {
+    virtual std::string to_string() {
         return name + ": " + type_name;
     }
 };
@@ -39,11 +40,11 @@ public:
     Type type;
     unsigned int dimension;
 
-    Vector (Type t, std::string n, unsigned int d, unsigned int dl):
+    Vector(Type t, std::string n, unsigned int d, unsigned int dl):
         Symbol(n, t == Qbit ? "qreg" : "creg", dl), type(t), dimension(d)
     {};
 
-    std::string to_string () override {
+    std::string to_string() override {
         std::stringstream ss;
         std::stringstream type;
         type << type_name << "[" << dimension << "]";
@@ -62,11 +63,11 @@ public:
     unsigned int nr_parameters;
     unsigned int nr_arguments;
 
-    Gate (std::string n, unsigned int np, unsigned int na, unsigned int dl):
+    Gate(std::string n, unsigned int np, unsigned int na, unsigned int dl):
         Symbol(n, "gate", dl), nr_parameters(np), nr_arguments(na)
     {};
 
-    std::string to_string () override {
+    std::string to_string() override {
         std::stringstream ss;
         std::stringstream type;
         type << type_name << "{" << nr_parameters << ", " << nr_arguments << "}";
@@ -84,11 +85,11 @@ struct GateParameter: public Symbol {
 public:
     unsigned int position;
 
-    GateParameter (std::string n, unsigned int p, unsigned int dl):
+    GateParameter(std::string n, unsigned int p, unsigned int dl):
         Symbol(n, "gate-parameter", dl), position(p)
     {};
 
-    std::string to_string () override {
+    std::string to_string() override {
         std::stringstream ss;
         std::stringstream type;
         type << type_name << "{" << position << "}";
@@ -104,11 +105,11 @@ public:
 struct GateArgument: public Symbol {
     unsigned int position;
 
-    GateArgument (std::string n, unsigned int p, unsigned int dl):
+    GateArgument(std::string n, unsigned int p, unsigned int dl):
         Symbol(n, "gate-argument", dl), position(p)
     {};
 
-    std::string to_string () override {
+    std::string to_string() override {
         std::stringstream ss;
         std::stringstream type;
         type << type_name << "{" << position << "}";
@@ -121,57 +122,56 @@ struct GateArgument: public Symbol {
     }
 };
 
+struct Scope {
+public:
+    std::shared_ptr<Scope> outer_scope;
+    std::unordered_map<std::string, std::shared_ptr<Symbol>> symbols;
+    std::unordered_map<std::string, std::shared_ptr<Scope>> saved_scopes;
+
+    Scope() {};
+    Scope(std::shared_ptr<Scope> outer): outer_scope(outer) {};
+};
+
 /**
  * Create new inner scope and move to it.
  * */
-void push_new_scope ();
+void push_new_scope();
 /**
  * Destroy current scope and move to parent scope.
  * */
-void pop_scope ();
+void pop_scope();
+
 /**
  * Pop the current scope and store it so that is can be restored
  * later.
  *
  * @param name the name to use to save the scope
  * */
-void pop_and_save_scope (std::string name);
+void pop_and_save_scope(std::string name);
+
 /**
  * Restore a saved scope
  *
  * @return true if scope was restored and false if scope was not found
  * */
-bool restore_scope (std::string name);
+bool restore_scope(std::string name);
 
 /**
  * Declare a new symbol, identified by symbol.name
  * */
-void declare (std::shared_ptr<Symbol> symbol);
+void declare(std::shared_ptr<Symbol> symbol);
 
 /**
  * Get a registered symbol
  * If the argument `this_scope` is true the search is only done in the 
  * current scope without checking the parent scope
  * */
-std::optional<std::shared_ptr<Symbol>> get (std::string name, bool this_scope=false);
-
-namespace {
-    struct Scope;
-    struct Scope {
-    public:
-        std::shared_ptr<Scope> outer_scope;
-        std::unordered_map<std::string, std::shared_ptr<Symbol>> symbols;
-        std::unordered_map<std::string, std::shared_ptr<Scope>> saved_scopes;
-
-        Scope () {};
-        Scope (std::shared_ptr<Scope> outer): outer_scope(outer) {};
-    };
-};
+std::optional<std::shared_ptr<Symbol>> get(std::string name, bool this_scope=false);
 
 /**
  * Print the contents 
  * */
-void dump ();
+void dump();
 
 };
 
