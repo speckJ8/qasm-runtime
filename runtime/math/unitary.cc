@@ -1,11 +1,25 @@
 #include "unitary.hpp"
-#include "simd.hpp"
+
+/**
+ * Apply a complex matrix to a complex vector.
+ * The matrix is assumed to be square and the dimension of the
+ * vector space is assumed to be a power of 2.
+ * */
+void mat_apply(const runtime::math::Unitary& mat,
+               const runtime::math::Vector& vec,
+               runtime::math::Vector& res);
+// defined in mat_apply.S
+extern "C" void mat_apply__avx(const void* mat,
+                               const void* vec,
+                               void* res,
+                               int dim,
+                               int num_simd_loops);
 
 namespace runtime {
 namespace math {
 
 Unitary Unitary::operator*(const Unitary& other) const {
-#ifdef USE_SIMD
+#ifdef USE_SIMD__
     return mat_mul__simd(*this, other);
 #else
     assert(this->dim() == other.dim());
@@ -22,24 +36,31 @@ Unitary Unitary::operator*(const Unitary& other) const {
 }
 
 Vector Unitary::operator*(const Vector& target) const {
-#ifdef USE_SIMD
-    const cx_t* mat = this->_entries;
-    const cx_t* vec = target.ptr();
-    Vector res(target.size());
-    cx_t* _res = res.ptr();
-    mat_apply__simd(mat, vec, _res, target.size());
-    return res;
-#else
     assert(this->dim() == target.size());
     Vector res(target.size());
-    for (int i = 0; i < target.size(); i++) {
-        for (int j = 0; j < target.size(); j++) {
-            res[i] += (*this)(i, j)*target[j];
-        }
+#ifdef USE_SIMD
+    if (__builtin_cpu_supports("avx") && target.size() >= 4) {
+        int num_simd_loops = std::floor(target.size()/4);
+        mat_apply__avx(this->_entries, target.ptr(), res.ptr(), target.size(), num_simd_loops);
+    } else {
+        mat_apply(*this, target, res);
     }
-    return res;
+#else
+    mat_apply(*this, target, res);
 #endif
+    return res;
 }
 
 }
+}
+
+void mat_apply(const runtime::math::Unitary& mat,
+               const runtime::math::Vector& vec,
+               runtime::math::Vector& res)
+{
+    for (int i = 0; i < vec.size(); i++) {
+        for (int j = 0; j < vec.size(); j++) {
+            res[i] += mat(i, j)*vec[j];
+        }
+    }
 }
