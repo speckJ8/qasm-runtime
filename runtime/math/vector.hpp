@@ -22,6 +22,7 @@ public:
     Vector();
     Vector(int size): _size(size) {
 #ifdef USE_SIMD
+        // allocate at a 32-byte address for use with AVX instructions
         _entries = static_cast<cx_t*>(aligned_alloc(32, _size*sizeof(cx_t)));
 #else
         _entries = static_cast<cx_t*>(malloc(_size*sizeof(cx_t)));

@@ -101,6 +101,7 @@ public:
     Unitary(int dim, std::vector<cx_t> entries): _dim(dim) {
         assert(_dim*_dim == (int)entries.size());
 #ifdef USE_SIMD
+        // allocate at a 32-byte address for use with AVX instructions
         _entries = static_cast<cx_t*>(aligned_alloc(32, _dim*_dim*sizeof(cx_t)));
 #else
         _entries = static_cast<cx_t*>(malloc(_dim*_dim*sizeof(cx_t)));
@@ -114,6 +115,7 @@ public:
     Unitary(int dim, std::initializer_list<cx_t> entries): _dim(dim) {
         assert(_dim*_dim == (int)entries.size());
 #ifdef USE_SIMD
+        // allocate at a 32-byte address for use with AVX instructions
         _entries = static_cast<cx_t*>(aligned_alloc(32, _dim*_dim*sizeof(cx_t)));
 #else
         _entries = static_cast<cx_t*>(malloc(_dim*_dim*sizeof(cx_t)));
