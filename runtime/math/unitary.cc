@@ -9,11 +9,7 @@ void mat_apply(const runtime::math::Unitary& mat,
                const runtime::math::Vector& vec,
                runtime::math::Vector& res);
 // defined in mat_apply.S
-extern "C" void mat_apply__avx(const void* mat,
-                               const void* vec,
-                               void* res,
-                               int dim,
-                               int num_simd_loops);
+extern "C" void mat_apply__avx(const void* mat, const void* vec, void* res, int dim);
 
 namespace runtime {
 namespace math {
@@ -40,8 +36,7 @@ Vector Unitary::operator*(const Vector& target) const {
     Vector res(target.size());
 #ifdef USE_SIMD
     if (__builtin_cpu_supports("avx") && target.size() >= 4) {
-        int num_simd_loops = std::floor(target.size()/4);
-        mat_apply__avx(this->_entries, target.ptr(), res.ptr(), target.size(), num_simd_loops);
+        mat_apply__avx(this->_entries, target.ptr(), res.ptr(), target.size());
     } else {
         mat_apply(*this, target, res);
     }

@@ -2,11 +2,18 @@
     .type  mat_apply__avx,@function
     .text
 
-# void _mat_apply__avx(void* mat, void* vec, void *res, int dim, int num_simd_loops)
+# void _mat_apply__avx(void* mat, void* vec, void *res, int dim)
 #
 # Apply the complex matrix `mat` to the complex vector `vec` and return the result in `res`.
 mat_apply__avx:
-    mov          %r8, %rax
+    pushq        %rbx
+    mov          %rcx, %rbx
+_rows_loop:
+    # find the number of AVX iterations necessary to compute the dot product a row
+    # of `mat` and `vec`. this is done by dividing the size of the vector by 4
+    mov          %rcx, %rax
+    shrq         $2, %rax
+
     mov          %rsi, %r10
     vxorps       %ymm3, %ymm3, %ymm3
 _simd_loop:
@@ -46,7 +53,9 @@ _simd_loop:
     movsd        %xmm4, (%rdx)
     add          $8, %rdx
     xorps        %xmm4, %xmm4
-    dec          %rcx
-    jnz          mat_apply__avx
+    dec          %rbx
+    jnz          _rows_loop
+
+    popq         %rbx
 
     ret

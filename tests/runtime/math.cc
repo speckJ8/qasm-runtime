@@ -7,7 +7,7 @@
 using namespace runtime::math;
 using namespace std::complex_literals;
 
-TEST(RuntimeMath, VecApply) {
+TEST(Math, VecApply) {
     std::vector<std::tuple<unitary_t, vector_t, vector_t>> test_data = {
         {
             {2, {
@@ -24,18 +24,8 @@ TEST(RuntimeMath, VecApply) {
                 0, 0, 1.f, 0,
                 0, 0, 0, 1.f,
             }},
-            { 2.f + 1if, 1.3f + 2if, -5.2f, 0.4f },
-            { 2.f + 1if, 1.3f + 2if, -5.2f, 0.4f },
-        },
-        {
-            {4, {
-                1.f, 0, 0, 0,
-                0, 1.f, 0, 0,
-                0, 0, 1.f, 0,
-                0, 0, 0, 1.f,
-            }},
-            { 2.f + 1if, 1.3f + 2if, -5.2f, 0.4f },
-            { 2.f + 1if, 1.3f + 2if, -5.2f, 0.4f },
+            { 2.f + 1if, 1.3f + 2if, -5.2f, 0.4if },
+            { 2.f + 1if, 1.3f + 2if, -5.2f, 0.4if },
         },
     };
     for (auto& [ mat, vec, res ] : test_data) {
