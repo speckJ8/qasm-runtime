@@ -27,7 +27,9 @@
 #include "vector.hpp"
 
 #include <cassert>
+#include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <ctime>
 #include <initializer_list>
 #include <iostream>
@@ -138,6 +140,10 @@ public:
 #else
         _entries = static_cast<cx_t*>(malloc(_dim*_dim*sizeof(cx_t)));
 #endif
+        if (!_entries) {
+            std::cout << "failed malloc: " << std::strerror(errno) << "\n";
+            std::exit(EXIT_FAILURE);
+        }
         for (size_t i = 0; i < _dim*_dim; i++) {
             _entries[i] = 0.f;
         }
@@ -153,6 +159,10 @@ public:
 #else
         _entries = static_cast<cx_t*>(malloc(_dim*_dim*sizeof(cx_t)));
 #endif
+        if (!_entries) {
+            std::cout << "failed malloc: " << std::strerror(errno) << "\n";
+            std::exit(EXIT_FAILURE);
+        }
         size_t i = 0;
         for (auto& cx : entries) {
             _entries[i++] = cx;

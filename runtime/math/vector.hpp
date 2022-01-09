@@ -25,8 +25,10 @@
 
 #include "types.hpp"
 
-#include <cstdlib>
+#include <cerrno>
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include <initializer_list>
 #include <iomanip>
 #include <iostream>
@@ -59,6 +61,10 @@ public:
 #else
         _entries = static_cast<cx_t*>(malloc(_size*sizeof(cx_t)));
 #endif
+        if (!_entries) {
+            std::cout << "failed malloc: " << std::strerror(errno) << "\n";
+            std::exit(EXIT_FAILURE);
+        }
         for (size_t i = 0; i < size; i++) {
             _entries[i] = 0.f;
         }
@@ -71,6 +77,10 @@ public:
 #else
         _entries = static_cast<cx_t*>(malloc(_size*sizeof(cx_t)));
 #endif
+        if (!_entries) {
+            std::cout << "failed malloc: " << std::strerror(errno) << "\n";
+            std::exit(EXIT_FAILURE);
+        }
         size_t i = 0;
         for (auto& cx : entries) {
             _entries[i++] = cx;
