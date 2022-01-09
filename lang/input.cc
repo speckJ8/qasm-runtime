@@ -67,13 +67,17 @@ void Input::strip_spaces() {
     }
 }
 
-Context Input::context(unsigned int start_line, unsigned int start_col) {
+Context Input::context(size_t start_line, size_t start_col) {
     return Context(start_line, this->line, start_col, this->col, this->filename);
 }
 
-std::string Input::get_read_line(unsigned int line) {
+std::string Input::get_read_line(size_t line) {
     assert(line < this->_lines_read.size());
     return this->_lines_read[line-1];
+}
+
+size_t Input::number_of_lines_read() {
+    return this->_lines_read.size();
 }
 
 }

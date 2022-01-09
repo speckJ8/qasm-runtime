@@ -44,9 +44,10 @@ public:
     char get();
     bool eof();
     void strip_spaces();
-    std::string get_read_line(unsigned int line);
+    std::string get_read_line(size_t line);
+    size_t number_of_lines_read();
 
-    Context context(unsigned int start_line, unsigned int start_col);
+    Context context(size_t start_line, size_t start_col);
 
     unsigned int line { 1 };
     unsigned int col { 1 };
