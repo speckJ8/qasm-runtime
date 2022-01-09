@@ -148,7 +148,6 @@ struct Scope {
 public:
     std::shared_ptr<Scope> outer_scope;
     std::unordered_map<std::string, std::shared_ptr<Symbol>> symbols;
-    std::unordered_map<std::string, std::shared_ptr<Scope>> saved_scopes;
 
     Scope() {};
     Scope(std::shared_ptr<Scope> outer): outer_scope(outer) {};
@@ -158,6 +157,7 @@ public:
  * Create new inner scope and move to it.
  * */
 void push_new_scope();
+
 /**
  * Destroy current scope and move to parent scope.
  * */
@@ -186,7 +186,7 @@ void declare(std::shared_ptr<Symbol> symbol);
 /**
  * Get a registered symbol
  * If the argument `this_scope` is true the search is only done in the 
- * current scope without checking the parent scope
+ * current scope without checking the outer scopes.
  * */
 std::optional<std::shared_ptr<Symbol>> get(std::string name, bool this_scope=false);
 

@@ -26,57 +26,58 @@
 #include <iostream>
 
 namespace lang {
+namespace symbol_table {
 
-std::shared_ptr<symbol_table::Scope> current_scope;
+std::shared_ptr<Scope> current_scope;
+std::unordered_map<std::string, std::shared_ptr<Scope>> saved_scopes;
 
-void symbol_table::push_new_scope() {
+void push_new_scope() {
     if (current_scope == nullptr) {
         current_scope = std::make_shared<Scope>();
     } else {
-        current_scope = std::make_shared<Scope>(std::move(current_scope));
+        current_scope = std::make_shared<Scope>(current_scope);
     }
 }
 
-void symbol_table::pop_scope() {
+void pop_scope() {
     if (current_scope == nullptr)
         push_new_scope();
 
-    std::shared_ptr<Scope> outer_scope = std::move(current_scope->outer_scope);
+    std::shared_ptr<Scope> outer_scope = current_scope->outer_scope;
     current_scope.reset();
-    current_scope = std::move(outer_scope);
+    current_scope = outer_scope;
 }
 
-void symbol_table::pop_and_save_scope(std::string name) {
-    std::shared_ptr<Scope> outer_scope = std::move(current_scope->outer_scope);
-    std::shared_ptr<Scope> old_scope = std::move(current_scope);
-    current_scope = std::move(outer_scope);
+void pop_and_save_scope(std::string name) {
+    std::shared_ptr<Scope> outer_scope = current_scope->outer_scope;
+    std::shared_ptr<Scope> old_scope = current_scope;
+    current_scope = outer_scope;
 
     // save the scope if it is not already saved
-    if (current_scope->saved_scopes.find(name) == current_scope->saved_scopes.end()) {
-        current_scope->saved_scopes.insert(std::make_pair(name, std::move(old_scope)));
+    if (saved_scopes.find(name) == saved_scopes.end()) {
+        saved_scopes.insert(std::make_pair(name, old_scope));
     }
 }
 
-bool symbol_table::restore_scope(std::string name) {
-    auto _scope = current_scope->saved_scopes.find(name);
-    if (_scope == current_scope->saved_scopes.end()) {
+bool restore_scope(std::string name) {
+    auto _scope = saved_scopes.find(name);
+    if (_scope == saved_scopes.end()) {
         return false;
     } else {
-        auto scope = std::move(_scope->second);
-        scope->outer_scope = std::move(current_scope);
-        current_scope = std::move(scope);
+        auto scope = _scope->second;
+        scope->outer_scope = current_scope;
+        current_scope = scope;
         return true;
     }
 }
 
-void symbol_table::declare(std::shared_ptr<symbol_table::Symbol> s) {
+void declare(std::shared_ptr<symbol_table::Symbol> s) {
     if (current_scope == nullptr)
         push_new_scope();
     current_scope->symbols.insert({ s->name, s });
 }
 
-std::optional<std::shared_ptr<symbol_table::Symbol>> symbol_table::get(std::string name,
-                                                                       bool this_scope) {
+std::optional<std::shared_ptr<Symbol>> get(std::string name, bool this_scope) {
     if (current_scope == nullptr)
         push_new_scope();
 
@@ -99,23 +100,23 @@ std::optional<std::shared_ptr<symbol_table::Symbol>> symbol_table::get(std::stri
     return std::nullopt;
 }
 
-void symbol_table::dump() {
+void dump() {
     assert(current_scope != nullptr);
 
     std::cout << "--------------[ root ]--------------\n";
-    for (auto element : current_scope->symbols) {
+    for (auto& element : current_scope->symbols) {
         auto symbol = element.second;
         std::cout << symbol->to_string() << "\n";
     }
-    for (auto _scope : current_scope->saved_scopes) {
-        auto scope = _scope.second;
-        auto name = _scope.first;
+    for (auto& [ name, scope ] : saved_scopes) {
         std::cout << "\n--------------[ scope: " << name << " ]--------------\n";
-        for (auto element : scope->symbols) {
+        assert(scope != nullptr);
+        for (auto& element : scope->symbols) {
             auto symbol = element.second;
             std::cout << symbol->to_string() << "\n";
         }
     }
 }
 
+}
 }
