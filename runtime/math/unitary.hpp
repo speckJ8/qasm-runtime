@@ -48,80 +48,6 @@ private:
     cx_t* _entries { nullptr };
 
 public:
-    class Row : public Vector {
-    protected:
-        Unitary& _mat;
-        size_t _size;
-        size_t _row_index;
-
-    public:
-        Row(Unitary& mat, size_t size, size_t row_index):
-            _mat(mat), _size(size), _row_index(row_index) {};
-
-        size_t size() const override {
-            return _size;
-        }
-
-        cx_t& operator()(size_t col) override {
-            return _mat(_row_index, col);
-        }
-
-        const cx_t& operator()(size_t col) const override {
-            return _mat(_row_index, col);
-        }
-
-        cx_t& operator[](size_t col) override {
-            return _mat(_row_index, col);
-        }
-
-        const cx_t& operator[](size_t col) const override {
-            return _mat(_row_index, col);
-        }
-
-        friend Unitary;
-
-        virtual cx_t* ptr() override {
-            return &_mat._entries[_row_index*_size];
-        }
-
-        virtual const cx_t* ptr() const override {
-            return &_mat._entries[_row_index*_size];
-        }
-    };
-
-    class Col : public Vector {
-    protected:
-        Unitary& _mat;
-        size_t _size;
-        size_t _col_index;
-
-    public:
-        Col(Unitary& mat, size_t size, size_t col_index):
-            _mat(mat), _size(size), _col_index(col_index) {};
-
-        size_t size() const override {
-            return _size;
-        }
-
-        cx_t& operator()(size_t row) override {
-            return _mat(row, _col_index);
-        }
-
-        const cx_t& operator()(size_t row) const override {
-            return _mat(row, _col_index);
-        }
-
-        cx_t& operator[](size_t row) override {
-            return _mat(row, _col_index);
-        }
-
-        const cx_t& operator[](size_t row) const override {
-            return _mat(row, _col_index);
-        }
-
-        friend Unitary;
-    };
-
     Unitary() = delete;
     Unitary(const Unitary&) = delete;
     Unitary operator=(const Unitary&) = delete;
@@ -175,35 +101,27 @@ public:
         }
     }
 
-    size_t dim() const {
+    inline size_t dim() const {
         return _dim;
     }
 
-    size_t size() const {
+    inline size_t size() const {
         return _dim*_dim;
     }
 
-    cx_t* ptr() {
+    inline cx_t* ptr() {
         return _entries;
     }
 
-    const cx_t* ptr() const {
+    inline const cx_t* ptr() const {
         return _entries;
     }
 
-    Row row(size_t index) {
-        return Row(*this, _dim, index);
-    }
-
-    Col col(size_t index) {
-        return Col(*this, _dim, index);
-    }
-
-    cx_t& operator()(size_t row, size_t col) {
+    inline cx_t& operator()(size_t row, size_t col) {
         return _entries[__INDEX_ENTRY(row, col, _dim)];
     }
 
-    const cx_t& operator()(size_t row, size_t col) const {
+    inline const cx_t& operator()(size_t row, size_t col) const {
         return _entries[__INDEX_ENTRY(row, col, _dim)];
     }
 

@@ -95,23 +95,23 @@ public:
 
     void tensor(const Vector& other, Vector& res) const;
 
-    virtual size_t size() const {
+    inline size_t size() const {
         return _size;
     }
 
-    virtual cx_t& operator()(size_t index) {
+    inline cx_t& operator()(size_t index) {
         return _entries[index];
     }
 
-    virtual const cx_t& operator()(size_t index) const {
+    inline const cx_t& operator()(size_t index) const {
         return _entries[index];
     }
 
-    virtual cx_t& operator[](size_t index) {
+    inline cx_t& operator[](size_t index) {
         return _entries[index];
     }
 
-    virtual const cx_t& operator[](size_t index) const {
+    inline const cx_t& operator[](size_t index) const {
         return _entries[index];
     }
 
@@ -124,11 +124,11 @@ public:
         return true;
     }
 
-    virtual cx_t* ptr() {
+    inline cx_t* ptr() {
         return _entries;
     }
 
-    virtual const cx_t* ptr() const {
+    inline const cx_t* ptr() const {
         return _entries;
     }
 
