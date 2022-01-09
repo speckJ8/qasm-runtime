@@ -43,7 +43,7 @@ private:
     cx_t* _entries { nullptr };
 
 public:
-    Vector() = default;
+    Vector() = delete;
     Vector(const Vector&) = delete;
     Vector operator=(const Vector&) = delete;
 
