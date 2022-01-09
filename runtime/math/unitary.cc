@@ -22,6 +22,7 @@
 
 #include "unitary.hpp"
 
+
 /**
  * Apply a complex matrix to a complex vector.
  * The matrix is assumed to be square and the dimension of the
@@ -31,39 +32,48 @@ void mat_apply(const runtime::math::Unitary& mat,
                const runtime::math::Vector& vec,
                runtime::math::Vector& res);
 // defined in mat_apply.S
-extern "C" void mat_apply__avx(const void* mat, const void* vec, void* res, int dim);
+extern "C" void mat_apply__avx(const void* mat, const void* vec, void* res, size_t dim);
+
+/**
+ * Multiply two square complex matrices. The matrix dimension is
+ * assumed to be a power of 2.
+ * */
+void mat_mul(const runtime::math::Unitary& mat_a,
+             const runtime::math::Unitary& mat_b,
+             runtime::math::Unitary& res);
+// defined in mat_mul.S
+extern "C" void mat_mul__avx(const void* mat_a, const void* mat_b, void* res, size_t dim);
+
 
 namespace runtime {
 namespace math {
 
-Unitary Unitary::operator*(const Unitary& other) const {
-#ifdef USE_SIMD__
-    return mat_mul__simd(*this, other);
-#else
-    assert(this->dim() == other.dim());
-    auto res = unitary_t::zero(this->dim());
-    for (int i = 0; i < res.dim(); i++) {
-        for (int j = 0; j < res.dim(); j++) {
-            for (int k = 0; k < res.dim(); k++) {
-                res(i, j) += (*this)(i, k)*other(k, j);
-            }
-        }
-    }
-    return res;
-#endif
-}
-
 Vector Unitary::operator*(const Vector& target) const {
     assert(this->dim() == target.size());
-    Vector res(target.size());
+    Vector res(this->dim());
 #ifdef USE_SIMD
-    if (__builtin_cpu_supports("avx") && target.size() >= 4) {
-        mat_apply__avx(this->_entries, target.ptr(), res.ptr(), target.size());
+    if (__builtin_cpu_supports("avx") && this->dim() >= 4) {
+        mat_apply__avx(this->ptr(), target.ptr(), res.ptr(), target.size());
     } else {
         mat_apply(*this, target, res);
     }
 #else
     mat_apply(*this, target, res);
+#endif
+    return res;
+}
+
+Unitary Unitary::operator*(const Unitary& other) const {
+    assert(this->dim() == other.dim());
+    Unitary res(this->dim());
+#ifdef USE_SIMD
+    if (__builtin_cpu_supports("avx") && this->dim() >= 4) {
+        mat_mul__avx(this->ptr(), other.ptr(), res.ptr(), this->dim());
+    } else {
+        mat_mul(*this, other, res);
+    }
+#else
+    mat_mul(*this, other, res);
 #endif
     return res;
 }
@@ -75,9 +85,22 @@ void mat_apply(const runtime::math::Unitary& mat,
                const runtime::math::Vector& vec,
                runtime::math::Vector& res)
 {
-    for (int i = 0; i < vec.size(); i++) {
-        for (int j = 0; j < vec.size(); j++) {
+    for (size_t i = 0; i < vec.size(); i++) {
+        for (size_t j = 0; j < vec.size(); j++) {
             res[i] += mat(i, j)*vec[j];
+        }
+    }
+}
+
+void mat_mul(const runtime::math::Unitary& mat_a,
+             const runtime::math::Unitary& mat_b,
+             runtime::math::Unitary& res)
+{
+    for (size_t i = 0; i < res.dim(); i++) {
+        for (size_t k = 0; k < res.dim(); k++) {
+            for (size_t j = 0; j < res.dim(); j++) {
+                res(i, j) += mat_a(i, k)*mat_b(k, j);
+            }
         }
     }
 }

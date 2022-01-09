@@ -42,37 +42,37 @@ namespace math {
 
 class Unitary {
 private:
-    int _dim { 0 };
+    size_t _dim { 0 };
     cx_t* _entries { nullptr };
 
 public:
     class Row : public Vector {
     protected:
         Unitary& _mat;
-        int _size;
-        int _row_index;
+        size_t _size;
+        size_t _row_index;
 
     public:
-        Row(Unitary& mat, int size, int row_index):
+        Row(Unitary& mat, size_t size, size_t row_index):
             _mat(mat), _size(size), _row_index(row_index) {};
 
-        int size() const override {
+        size_t size() const override {
             return _size;
         }
 
-        cx_t& operator()(int col) override {
+        cx_t& operator()(size_t col) override {
             return _mat(_row_index, col);
         }
 
-        const cx_t& operator()(int col) const override {
+        const cx_t& operator()(size_t col) const override {
             return _mat(_row_index, col);
         }
 
-        cx_t& operator[](int col) override {
+        cx_t& operator[](size_t col) override {
             return _mat(_row_index, col);
         }
 
-        const cx_t& operator[](int col) const override {
+        const cx_t& operator[](size_t col) const override {
             return _mat(_row_index, col);
         }
 
@@ -90,59 +90,70 @@ public:
     class Col : public Vector {
     protected:
         Unitary& _mat;
-        int _size;
-        int _col_index;
+        size_t _size;
+        size_t _col_index;
 
     public:
-        Col(Unitary& mat, int size, int col_index):
+        Col(Unitary& mat, size_t size, size_t col_index):
             _mat(mat), _size(size), _col_index(col_index) {};
 
-        int size() const override {
+        size_t size() const override {
             return _size;
         }
 
-        cx_t& operator()(int row) override {
+        cx_t& operator()(size_t row) override {
             return _mat(row, _col_index);
         }
 
-        const cx_t& operator()(int row) const override {
+        const cx_t& operator()(size_t row) const override {
             return _mat(row, _col_index);
         }
 
-        cx_t& operator[](int row) override {
+        cx_t& operator[](size_t row) override {
             return _mat(row, _col_index);
         }
 
-        const cx_t& operator[](int row) const override {
+        const cx_t& operator[](size_t row) const override {
             return _mat(row, _col_index);
         }
 
         friend Unitary;
     };
 
-    Unitary(int dim, std::vector<cx_t> entries): _dim(dim) {
-        assert(_dim*_dim == (int)entries.size());
+    Unitary() = delete;
+    Unitary(const Unitary&) = delete;
+    Unitary operator=(const Unitary&) = delete;
+
+    Unitary& operator=(const Unitary&& u) {
+        _dim = u._dim;
+        _entries = u._entries;
+        return *this;
+    }
+    Unitary(const Unitary&& u): _dim(u._dim), _entries(u._entries) {}
+
+    Unitary(size_t dim): _dim(dim) {
 #ifdef USE_SIMD
         // allocate at a 32-byte address for use with AVX instructions
         _entries = static_cast<cx_t*>(aligned_alloc(32, _dim*_dim*sizeof(cx_t)));
 #else
         _entries = static_cast<cx_t*>(malloc(_dim*_dim*sizeof(cx_t)));
 #endif
-        int i = 0;
-        for (auto& cx : entries) {
-            _entries[i++] = cx;
+        for (size_t i = 0; i < _dim*_dim; i++) {
+            _entries[i] = 0.f;
         }
     }
 
-    Unitary(int dim, std::initializer_list<cx_t> entries): _dim(dim) {
-        assert(_dim*_dim == (int)entries.size());
+    Unitary(std::initializer_list<cx_t> entries) {
+        size_t dim = std::floor(std::sqrt(entries.size()));
+        assert(dim*dim == entries.size());
+        _dim = dim;
 #ifdef USE_SIMD
         // allocate at a 32-byte address for use with AVX instructions
         _entries = static_cast<cx_t*>(aligned_alloc(32, _dim*_dim*sizeof(cx_t)));
 #else
         _entries = static_cast<cx_t*>(malloc(_dim*_dim*sizeof(cx_t)));
 #endif
-        int i = 0;
+        size_t i = 0;
         for (auto& cx : entries) {
             _entries[i++] = cx;
         }
@@ -154,15 +165,11 @@ public:
         }
     }
 
-    static Unitary zero(int dim) {
-        return { dim, std::vector<cx_t>(dim*dim, 0) };
-    }
-
-    int dim() const {
+    size_t dim() const {
         return _dim;
     }
 
-    int size() const {
+    size_t size() const {
         return _dim*_dim;
     }
 
@@ -174,19 +181,19 @@ public:
         return _entries;
     }
 
-    Row row(int index) {
+    Row row(size_t index) {
         return Row(*this, _dim, index);
     }
 
-    Col col(int index) {
+    Col col(size_t index) {
         return Col(*this, _dim, index);
     }
 
-    cx_t& operator()(int row, int col) {
+    cx_t& operator()(size_t row, size_t col) {
         return _entries[__INDEX_ENTRY(row, col, _dim)];
     }
 
-    const cx_t& operator()(int row, int col) const {
+    const cx_t& operator()(size_t row, size_t col) const {
         return _entries[__INDEX_ENTRY(row, col, _dim)];
     }
 
@@ -194,12 +201,12 @@ public:
 
     Vector operator*(const Vector& target) const;
 
-    Unitary redimension(int dimension, std::vector<unsigned int> targets);
+    void redimension(size_t dimension, std::vector<size_t> targets, Unitary& res);
 
     friend std::ostream& operator<<(std::ostream& os, const Unitary& m) {
-        for (int i = 0; i < m._dim; i++) {
+        for (size_t i = 0; i < m._dim; i++) {
             os << "|";
-            for (int j = 0; j < m._dim; j++) {
+            for (size_t j = 0; j < m._dim; j++) {
                 os << std::setw(3) << m(i, j);
             }
             os << " |" << std::endl;

@@ -21,18 +21,18 @@
  */
 
 #include "vector.hpp"
+#include <cassert>
 
 namespace runtime {
 namespace math {
 
-Vector Vector::tensor(const Vector& other) const {
-    Vector res(this->size()*other.size());
-    for (int i = 0; i < this->size(); i++) {
-        for (int j = 0; j < other.size(); j++) {
+void Vector::tensor(const Vector& other, Vector& res) const {
+    assert(res.size() == this->size()*other.size());
+    for (size_t i = 0; i < this->size(); i++) {
+        for (size_t j = 0; j < other.size(); j++) {
             res[i*other.size() + j] = (*this)[i]*other[j];
         }
     }
-    return res;
 }
 
 }

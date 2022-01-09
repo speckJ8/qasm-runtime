@@ -57,8 +57,6 @@ public:
     // State operator()(State& state);
 
 private:
-    Gate(math::unitary_t const unitary): _unitary(unitary) {};
-
     /**
      * Pauli matrices
      * */
