@@ -41,16 +41,6 @@ target_link_libraries(Statement PUBLIC Context
                                        List
                                        SymbolTable)
 
-target_include_directories(Context INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(Error INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(Expression INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(Input INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(Lexer INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(List INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(Parser INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(Sema INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(Statement INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-
 add_library(Lang INTERFACE)
 target_link_libraries(Lang INTERFACE Error)
 target_link_libraries(Lang INTERFACE Input)
