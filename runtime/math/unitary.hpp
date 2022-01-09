@@ -191,6 +191,7 @@ public:
     }
 
     Unitary operator*(const Unitary& other) const;
+
     Vector operator*(const Vector& target) const;
 
     Unitary redimension(int dimension, std::vector<unsigned int> targets);

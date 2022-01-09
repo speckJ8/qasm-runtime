@@ -87,6 +87,7 @@ public:
     virtual cx_t& operator()(int index) {
         return _entries[index];
     }
+
     virtual const cx_t& operator()(int index) const {
         return _entries[index];
     }
@@ -94,6 +95,7 @@ public:
     virtual cx_t& operator[](int index) {
         return _entries[index];
     }
+
     virtual const cx_t& operator[](int index) const {
         return _entries[index];
     }
