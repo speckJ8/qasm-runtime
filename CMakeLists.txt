@@ -22,15 +22,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 add_executable(Qasm qasm.cc)
-
-target_link_libraries(Qasm PUBLIC Error)
-target_link_libraries(Qasm PUBLIC Input)
-target_link_libraries(Qasm PUBLIC Parser)
-target_link_libraries(Qasm PUBLIC Program)
-target_link_libraries(Qasm PUBLIC Sema)
-target_link_libraries(Qasm PUBLIC SymbolTable)
-target_link_libraries(Qasm PUBLIC Runtime)
-
+target_link_libraries(Qasm PUBLIC Lang)
 target_include_directories(Qasm PUBLIC "${PROJECT_BINARY_DIRECTORY}")
 
 option(USE_SIMD "Use SIMD for math operations" ON)
