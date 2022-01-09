@@ -113,9 +113,9 @@ public:
     Type type;
     Kind kind;
     std::string value;
-    unsigned int line, col;
+    size_t line, col;
 
-    Token(Type type, Kind kind, std::string value, unsigned int line, unsigned int col):
+    Token(Type type, Kind kind, std::string value, size_t line, size_t col):
         type(type), kind(kind), value(value), line(line), col(col) {};
 };
 

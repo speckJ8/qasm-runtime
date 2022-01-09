@@ -157,8 +157,8 @@ lexer::Token lexer::_next_token(Input& input) {
     }
 
     input.strip_spaces();
-    unsigned int line = input.line;
-    unsigned int col = input.col;
+    size_t line = input.line;
+    size_t col = input.col;
     char next = input.get();
 
     if (input.eof())

@@ -42,9 +42,9 @@ public:
     // name of the symbols declaration type
     std::string type_name;
     // line where the symbol was declared
-    unsigned int decl_line;
+    size_t decl_line;
 
-    Symbol(std::string n, std::string tn, unsigned int dl):
+    Symbol(std::string n, std::string tn, size_t dl):
         name(n), type_name(tn), decl_line(dl) {};
 
     virtual ~Symbol() = default;
@@ -60,9 +60,9 @@ public:
     enum Type { Qbit, Cbit };
 
     Type type;
-    unsigned int dimension;
+    size_t dimension;
 
-    Vector(Type t, std::string n, unsigned int d, unsigned int dl):
+    Vector(Type t, std::string n, size_t d, size_t dl):
         Symbol(n, t == Qbit ? "qreg" : "creg", dl), type(t), dimension(d)
     {};
 
@@ -82,10 +82,10 @@ public:
 
 struct Gate: public Symbol {
 public:
-    unsigned int nr_parameters;
-    unsigned int nr_arguments;
+    size_t nr_parameters;
+    size_t nr_arguments;
 
-    Gate(std::string n, unsigned int np, unsigned int na, unsigned int dl):
+    Gate(std::string n, size_t np, size_t na, size_t dl):
         Symbol(n, "gate", dl), nr_parameters(np), nr_arguments(na)
     {};
 
@@ -105,9 +105,9 @@ public:
 
 struct GateParameter: public Symbol {
 public:
-    unsigned int position;
+    size_t position;
 
-    GateParameter(std::string n, unsigned int p, unsigned int dl):
+    GateParameter(std::string n, size_t p, size_t dl):
         Symbol(n, "gate-parameter", dl), position(p)
     {};
 
@@ -125,9 +125,9 @@ public:
 };
 
 struct GateArgument: public Symbol {
-    unsigned int position;
+    size_t position;
 
-    GateArgument(std::string n, unsigned int p, unsigned int dl):
+    GateArgument(std::string n, size_t p, size_t dl):
         Symbol(n, "gate-argument", dl), position(p)
     {};
 

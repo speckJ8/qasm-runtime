@@ -37,20 +37,20 @@ Variable parse_argument(Input&);
 ExpressionList parse_expression_list(Input&);
 IdentifierList parse_id_list(Input&);
 MixedList parse_mixed_list(Input&);
-IfStatement parse_if_statement(Input&, unsigned int, unsigned int);
-MeasureOperation parse_measure_operation(Input&, unsigned int, unsigned int);
-ResetOperation parse_reset_operation(Input&, unsigned int, unsigned int);
-BarrierOperation parse_barrier_operation(Input&, unsigned int, unsigned int);
+IfStatement parse_if_statement(Input&, size_t, size_t);
+MeasureOperation parse_measure_operation(Input&, size_t, size_t);
+ResetOperation parse_reset_operation(Input&, size_t, size_t);
+BarrierOperation parse_barrier_operation(Input&, size_t, size_t);
 UnitaryOperation parse_unitary_operation(Input&,
-                                         unsigned int,
-                                         unsigned int,
+                                         size_t,
+                                         size_t,
                                          UnitaryOperation::Operator,
                                          std::string);
-OpaqueDeclaration parse_opaque_declaration(Input&, unsigned int, unsigned int);
-GateDeclaration parse_gate_declaration(Input&, unsigned int, unsigned int);
+OpaqueDeclaration parse_opaque_declaration(Input&, size_t, size_t);
+GateDeclaration parse_gate_declaration(Input&, size_t, size_t);
 VariableDeclaration parse_variable_declaration(Input&,
-                                               unsigned int,
-                                               unsigned int,
+                                               size_t,
+                                               size_t,
                                                VariableDeclaration::DeclarationType);
 std::shared_ptr<Statement> parse_quantum_operation(Input&);
 std::shared_ptr<Expression> parse_expression(Input&);
@@ -103,7 +103,7 @@ std::string parse_header(Input& input) {
     using namespace lexer;
 
     Token tk = next_token(input);
-    unsigned int start_line = tk.line;
+    size_t start_line = tk.line;
     if (tk.type != Token::Keyword_OpenQasm) {
         throw Error(input.context(start_line, tk.col), "expected keyword 'OPENQASM'");
     }
@@ -124,8 +124,8 @@ std::shared_ptr<Statement> parse_statement(Input& input) {
     using namespace lexer;
 
     Token tk = next_token(input);
-    unsigned int start_line = tk.line;
-    unsigned int start_col = tk.col;
+    size_t start_line = tk.line;
+    size_t start_col = tk.col;
     switch (tk.type) {
     case Token::Comment: {
         return std::make_shared<Comment>(tk.value, input.context(start_line, start_col));
@@ -215,7 +215,7 @@ std::shared_ptr<Statement> parse_statement(Input& input) {
  * if (<id> == <nninteger>) <quantum_op>.
  * The function expecteds the keyworkd `if` to have been read.
  * */
-IfStatement parse_if_statement(Input& input, unsigned int start_line, unsigned int start_col) {
+IfStatement parse_if_statement(Input& input, size_t start_line, size_t start_col) {
     using namespace lexer;
 
     Token tk = next_token(input);
@@ -248,8 +248,8 @@ IfStatement parse_if_statement(Input& input, unsigned int start_line, unsigned i
  * opaque <id> [(<id-list>)] <id-list>
  * */
 OpaqueDeclaration parse_opaque_declaration(Input& input,
-                                            unsigned int start_line,
-                                            unsigned int start_col)
+                                            size_t start_line,
+                                            size_t start_col)
 {
     using namespace lexer;
 
@@ -278,8 +278,8 @@ OpaqueDeclaration parse_opaque_declaration(Input& input,
  * barrier <any-list>
  * */
 BarrierOperation parse_barrier_operation(Input& input,
-                                         unsigned int start_line,
-                                         unsigned int start_col)
+                                         size_t start_line,
+                                         size_t start_col)
 {
     using namespace lexer;
 
@@ -294,8 +294,8 @@ BarrierOperation parse_barrier_operation(Input& input,
  * <creg|qreg> <name>\[<dim>\]
  * */
 VariableDeclaration parse_variable_declaration(Input& input,
-                                               unsigned int start_line,
-                                               unsigned int start_col,
+                                               size_t start_line,
+                                               size_t start_col,
                                                VariableDeclaration::DeclarationType type)
 {
     using namespace lexer;
@@ -330,8 +330,8 @@ VariableDeclaration parse_variable_declaration(Input& input,
 
 
 GateDeclaration parse_gate_declaration(Input& input,
-                                       unsigned int start_line,
-                                       unsigned int start_col)
+                                       size_t start_line,
+                                       size_t start_col)
 {
     using namespace lexer;
 
@@ -456,8 +456,8 @@ std::shared_ptr<Expression> parse_atom_expression(Input& input) {
     using namespace lexer;
 
     Token tk = next_token(input);
-    unsigned int start_line = tk.line;
-    unsigned int start_col = tk.col;
+    size_t start_line = tk.line;
+    size_t start_col = tk.col;
     switch (tk.type) {
     case Token::Type::Real:
         return std::make_shared<RealNumber>(tk.value, input.context(start_line, start_col));
@@ -574,8 +574,8 @@ IdentifierList parse_id_list(Input& input) {
     using namespace lexer;
 
     Token tk = next_token(input);
-    unsigned int start_line = tk.line;
-    unsigned int start_col = tk.col;
+    size_t start_line = tk.line;
+    size_t start_col = tk.col;
     if (tk.type != Token::Type::Id) {
         throw Error(input.context(start_line, tk.col),
                     "expected an identifier, but found " + tk.value);
@@ -637,8 +637,8 @@ Variable parse_argument(Input& input) {
     using namespace lexer;
 
     Token identifier = next_token(input);
-    unsigned int start_line = identifier.line;
-    unsigned int start_col = identifier.col;
+    size_t start_line = identifier.line;
+    size_t start_col = identifier.col;
     if (identifier.type != Token::Type::Id) {
         throw Error(input.context(start_line, identifier.col),
                     "expected an identifier, but found " + identifier.value);
@@ -672,8 +672,8 @@ Variable parse_argument(Input& input) {
  * The function expects the measure keyword to have been read.
  * */
 MeasureOperation parse_measure_operation(Input& input,
-                                         unsigned int start_line,
-                                         unsigned int start_col) {
+                                         size_t start_line,
+                                         size_t start_col) {
     using namespace lexer;
 
     Variable source_arg = parse_argument(input);
@@ -693,8 +693,8 @@ MeasureOperation parse_measure_operation(Input& input,
  * The function expects the reset keyword to have been read.
  * */
 ResetOperation parse_reset_operation(Input& input,
-                                     unsigned int start_line,
-                                     unsigned int start_col) {
+                                     size_t start_line,
+                                     size_t start_col) {
     using namespace lexer;
 
     Variable target = parse_argument(input);
@@ -711,8 +711,8 @@ ResetOperation parse_reset_operation(Input& input,
  * <operator> (<expression_list>) <anylist>;
  * */
 UnitaryOperation parse_unitary_operation(Input& input,
-                                         unsigned int start_line,
-                                         unsigned int start_col,
+                                         size_t start_line,
+                                         size_t start_col,
                                          UnitaryOperation::Operator op,
                                          std::string operator_name)
 {

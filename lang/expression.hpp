@@ -127,12 +127,12 @@ class Variable: public Expression {
 public:
     std::string identifier;
     // in case the variable is a vector and we're indexing it
-    std::optional<unsigned int> index;
+    std::optional<size_t> index;
 
     Variable(std::string i, Context c):
          Expression(c), identifier(i), index(std::nullopt)
     {};
-    Variable(std::string i, unsigned int _i, Context c):
+    Variable(std::string i, size_t _i, Context c):
         Expression(c), identifier(i), index(_i)
     {};
 

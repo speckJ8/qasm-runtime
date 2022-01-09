@@ -111,9 +111,9 @@ public:
     // name of the variable to be declared
     std::string identifier;
     // dimension of the vector we're declaring
-    unsigned int dimension;
+    size_t dimension;
 
-    VariableDeclaration(DeclarationType t, std::string i, unsigned int d, Context c):
+    VariableDeclaration(DeclarationType t, std::string i, size_t d, Context c):
         Statement(c), type(t), identifier(i), dimension(d)
     {};
 

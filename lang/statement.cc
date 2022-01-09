@@ -40,11 +40,11 @@ void OpaqueDeclaration::declare_symbols() {
         throw Error(context, msg);
     }
 
-    unsigned int nr_params = 0;
+    size_t nr_params = 0;
     if (parameters.has_value()) {
         nr_params = parameters.value().id_list.size();
     }
-    unsigned int nr_args = arguments.id_list.size();
+    size_t nr_args = arguments.id_list.size();
     auto gate = std::make_shared<symbol_table::Gate>(identifier,
                                                      nr_params,
                                                      nr_args,
@@ -114,11 +114,11 @@ void GateDeclaration::declare_symbols() {
         throw Error(context, msg);
     }
 
-    unsigned int nr_params = 0;
+    size_t nr_params = 0;
     if (parameters.has_value()) {
         nr_params = parameters.value().id_list.size();
     }
-    unsigned int nr_args = arguments.id_list.size();
+    size_t nr_args = arguments.id_list.size();
     auto gate = std::make_shared<symbol_table::Gate>(identifier,
                                                      nr_params,
                                                      nr_args,

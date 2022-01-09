@@ -49,8 +49,8 @@ public:
 
     Context context(size_t start_line, size_t start_col);
 
-    unsigned int line { 1 };
-    unsigned int col { 1 };
+    size_t line { 1 };
+    size_t col { 1 };
     std::string filename { "" };
 
 private:

@@ -33,13 +33,13 @@ namespace lang {
  * */
 struct Context {
 public:
-    unsigned int start_line;
-    unsigned int end_line;
-    unsigned int start_col;
-    unsigned int end_col;
+    size_t start_line;
+    size_t end_line;
+    size_t start_col;
+    size_t end_col;
     std::string filename;
 
-    Context(unsigned int sln, unsigned int eln, unsigned int scn, unsigned int ecn, std::string f):
+    Context(size_t sln, size_t eln, size_t scn, size_t ecn, std::string f):
         start_line(sln),
         end_line(eln),
         start_col(scn),
