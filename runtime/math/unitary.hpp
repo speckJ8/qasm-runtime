@@ -42,8 +42,8 @@ namespace math {
 
 class Unitary {
 private:
-    int _dim;
-    cx_t* _entries;
+    int _dim { 0 };
+    cx_t* _entries { nullptr };
 
 public:
     class Row : public Vector {
@@ -148,6 +148,12 @@ public:
         }
     }
 
+    ~Unitary() {
+        if (_entries != nullptr) {
+            free(_entries);
+        }
+    }
+
     static Unitary zero(int dim) {
         return { dim, std::vector<cx_t>(dim*dim, 0) };
     }
@@ -158,6 +164,14 @@ public:
 
     int size() const {
         return _dim*_dim;
+    }
+
+    cx_t* ptr() {
+        return _entries;
+    }
+
+    const cx_t* ptr() const {
+        return _entries;
     }
 
     Row row(int index) {

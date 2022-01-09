@@ -37,8 +37,8 @@ namespace math {
 
 class Vector {
 private:
-    int _size {0};
-    cx_t* _entries;
+    int _size { 0 };
+    cx_t* _entries { nullptr };
 
 public:
     Vector();
@@ -61,6 +61,12 @@ public:
         int i = 0;
         for (auto& cx : entries) {
             _entries[i++] = cx;
+        }
+    }
+
+    ~Vector() {
+        if (_entries != nullptr) {
+            free(_entries);
         }
     }
 
