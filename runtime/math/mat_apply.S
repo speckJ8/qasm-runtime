@@ -22,26 +22,28 @@
     .type  mat_apply__avx,@function
     .text
 
-# void _mat_apply__avx(void* mat, void* vec, void *res, int dim)
+# void mat_apply__avx(void* mat, void* vec, void *res, int dim)
 #
 # Apply the complex matrix `mat` to the complex vector `vec` and return the result in `res`.
+# The dimension of the matrix (size of row and columns) is assumed to be nonzero and
+# a multiple of 4.
 mat_apply__avx:
     pushq        %rbx
     mov          %rcx, %rbx
 _rows_loop:
     # find the number of AVX iterations necessary to compute the dot product a row
-    # of `mat` and `vec`. this is done by dividing the size of the vector by 4
+    # of `mat` and `vec`; this is done by dividing the size of the vector by 4
     mov          %rcx, %rax
-    shrq         $2, %rax
+    shr          $2, %rax
 
     mov          %rsi, %r10
     vxorps       %ymm3, %ymm3, %ymm3
 _simd_loop:
-    # load duplicate values of the real components of the vector
+    # load duplicate values of the real components of the current row of the matrix
     vmovsldup    (%rdi), %ymm0
-    # load from the current row of the matrix
+    # load from the vector
     vmovaps      (%r10), %ymm1
-    # load duplicate values of the imaginary components of the vector
+    # load duplicate values of the imaginary components of the current row of the matrix
     vmovshdup    (%rdi), %ymm2
     vmulps       %ymm1, %ymm0, %ymm0
     # flip the placement of the real and imaginary components of the row
