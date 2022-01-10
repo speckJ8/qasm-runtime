@@ -25,6 +25,7 @@
 
 #include "types.hpp"
 #include "vector.hpp"
+#include "config.h"
 
 #include <cassert>
 #include <cerrno>

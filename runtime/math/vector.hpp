@@ -24,6 +24,7 @@
 #define __RUNTIME__VECTOR_H__
 
 #include "types.hpp"
+#include "config.h"
 
 #include <cerrno>
 #include <cmath>
@@ -115,15 +116,6 @@ public:
         return _entries[index];
     }
 
-    const bool operator==(const Vector& other) const {
-        for (size_t i = 0; i < size(); i++) {
-            if (std::abs((*this)[i] - other[i]) > 0.001f) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     inline cx_t* ptr() {
         return _entries;
     }
@@ -139,6 +131,15 @@ public:
         }
         os << " }" << std::endl;
         return os;
+    }
+
+    const bool operator==(const Vector& other) const {
+        for (size_t i = 0; i < size(); i++) {
+            if (std::abs((*this)[i] - other[i]) > 0.001f) {
+                return false;
+            }
+        }
+        return true;
     }
 };
 
