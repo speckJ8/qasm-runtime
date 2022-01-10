@@ -63,3 +63,35 @@ TEST(Math, VecApply) {
             << "obtainedResult=" << _res << std::endl;
     }
 }
+
+TEST(Math, MatMul) {
+    std::vector<std::tuple<cxv_t, cxv_t, cxv_t>> test_data = {
+        {
+            {
+                1.f + 2if,      3.f + 4if,  .5if,        12.4f - 4if,
+                5.f + 6if,      7.f + 8if,  0,           -0.3f,
+                0,              0,          -3.f + 1if,  1if,
+                -3.5f + 1.2if,  0,          100if,       0
+            },
+            {
+                 2, 0, 0, 0,
+                 0, 1, 0, 0,
+                 0, 0, 1, 0,
+                 0, 0, 0, 1,
+            },
+            {
+                2.f + 4if,     3.f + 4if,  .5if,        12.4f - 4if,
+                10.f + 12if,   7.f + 8if,  0,           -0.3f,
+                0,             0,          -3.f + 1if,  1if,
+                -7.f + 2.4if,  0,          100if,       0
+            },
+        },
+    };
+    for (auto& [ mat_a, mat_b, res ] : test_data) {
+        unitary_t ma(mat_a);
+        unitary_t mb(mat_b);
+        unitary_t eres(res);
+        unitary_t _res = ma*mb;
+        EXPECT_EQ(eres == _res, true);
+    }
+}
