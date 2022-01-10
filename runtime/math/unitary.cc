@@ -22,7 +22,6 @@
 
 #include "unitary.hpp"
 
-
 /**
  * Apply a complex matrix to a complex vector.
  * The matrix is assumed to be square and the dimension of the
