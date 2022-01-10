@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(QasmRuntime)
 enable_language(CUDA ASM)
+enable_testing()
 
 add_compile_options(
     -Wall
@@ -13,20 +14,15 @@ add_compile_options(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-
 add_subdirectory(lang)
 add_subdirectory(runtime)
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    enable_testing()
-    add_subdirectory(tests)
-endif()
+add_subdirectory(tests)
 
 add_executable(Qasm qasm.cc)
 target_link_libraries(Qasm PUBLIC Lang)
 target_include_directories(Qasm PUBLIC "${PROJECT_BINARY_DIRECTORY}")
 
-option(USE_SIMD "Use SIMD for math operations" ON)
-option(USE_CUDA "Use Cuda for math operations" OFF)
+configure_file(config.h.in config.h)
 
 include(FetchContent)
 FetchContent_Declare(
