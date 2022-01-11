@@ -74,9 +74,9 @@ Program parse(Input& input) {
             throw Error(input.context(tk.line, tk.col),
                         "expected a string for the name of the include file");
         }
-        if (include_file.value == input.filename) {
+        if (include_file.value == input.filename()) {
             throw Error(input.context(tk.line, tk.col),
-                        "tried to include file from itself: '" + input.filename + "'");
+                        "tried to include file from itself: '" + input.filename() + "'");
         }
         read_semicolon(input);
         /*
@@ -93,7 +93,7 @@ Program parse(Input& input) {
         tk = next_token(input);
     }
 
-    return Program(input.filename, statements, includes);
+    return Program(input.filename(), statements, includes);
 }
 
 /**

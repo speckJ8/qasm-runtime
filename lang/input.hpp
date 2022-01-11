@@ -38,22 +38,23 @@ class Input {
 public:
     Input(std::istream& stream): _stream(stream) {};
     Input(std::istream& stream, std::string filename):
-        filename(filename), _stream(stream){};
+        _filename(filename), _stream(stream){};
 
     char peek();
     char get();
     bool eof();
+    size_t line();
+    size_t col();
+    std::string filename();
     void strip_spaces();
     std::string get_read_line(size_t line);
     size_t number_of_lines_read();
-
     Context context(size_t start_line, size_t start_col);
 
-    size_t line { 1 };
-    size_t col { 1 };
-    std::string filename { "" };
-
 private:
+    size_t _line { 1 };
+    size_t _col { 1 };
+    std::string _filename { "" };
     std::vector<std::string> _lines_read;
     std::string _curr_line { "" };
     std::istream& _stream;

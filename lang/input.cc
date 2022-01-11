@@ -37,13 +37,13 @@ char Input::peek() {
 char Input::get() {
     char next = this->_stream.get();
     if (next == '\n') {
-        this->line++;
-        this->col = 1;
+        this->_line++;
+        this->_col = 1;
         this->_lines_read.push_back(std::move(this->_curr_line));
         this->_curr_line = "";
     } else {
         this->_curr_line.push_back(next);
-        this->col++;
+        this->_col++;
     }
     return next;
 }
@@ -56,19 +56,19 @@ void Input::strip_spaces() {
     while (std::isspace(this->_stream.peek()) && !this->_stream.eof()) {
         char next = this->_stream.get();
         if (next == '\n' || next == '\r') {
-            this->line++;
-            this->col = 1;
+            this->_line++;
+            this->_col = 1;
             this->_lines_read.push_back(std::move(this->_curr_line));
             this->_curr_line = "";
         } else {
-            this->col++;
+            this->_col++;
             this->_curr_line.push_back(next);
         }
     }
 }
 
 Context Input::context(size_t start_line, size_t start_col) {
-    return Context(start_line, this->line, start_col, this->col, this->filename);
+    return Context(start_line, this->_line, start_col, this->_col, this->_filename);
 }
 
 std::string Input::get_read_line(size_t line) {
@@ -78,6 +78,18 @@ std::string Input::get_read_line(size_t line) {
 
 size_t Input::number_of_lines_read() {
     return this->_lines_read.size();
+}
+
+size_t Input::line() {
+    return this->_line;
+}
+
+size_t Input::col() {
+    return this->_col;
+}
+
+std::string Input::filename() {
+    return this->_filename;
 }
 
 }
