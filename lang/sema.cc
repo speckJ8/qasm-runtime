@@ -21,19 +21,23 @@
  */
 
 #include "sema.hpp"
+#include "symbol_table.hpp"
 
 namespace lang {
+namespace sema {
 
-void sema::declare_symbols(Program& program) {
+void declare_symbols(Program& program) {
+    symbol_table::push_scope("global");
     for (auto&& stmt : program.statements) {
         stmt->declare_symbols();
     }
 }
 
-void sema::verify(Program& program) {
+void verify(Program& program) {
     for (auto&& stmt : program.statements) {
         stmt->verify();
     }
 }
 
+}
 }

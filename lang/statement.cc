@@ -50,7 +50,7 @@ void OpaqueDeclaration::declare_symbols() {
                                                      nr_args,
                                                      context.start_line);
     symbol_table::declare(gate);
-    symbol_table::push_new_scope();
+    symbol_table::push_scope(identifier);
     if (parameters.has_value()) {
         auto params = parameters.value().id_list;
         auto position = 0;
@@ -83,7 +83,7 @@ void OpaqueDeclaration::declare_symbols() {
         symbol_table::declare(a);
     }
 
-    symbol_table::pop_and_save_scope(identifier);
+    symbol_table::pop_scope();
 }
 
 void VariableDeclaration::declare_symbols() {
@@ -124,7 +124,7 @@ void GateDeclaration::declare_symbols() {
                                                      nr_args,
                                                      context.start_line);
     symbol_table::declare(gate);
-    symbol_table::push_new_scope();
+    symbol_table::push_scope(identifier);
     if (parameters.has_value()) {
         auto params = parameters.value().id_list;
         auto position = 0;
@@ -160,7 +160,7 @@ void GateDeclaration::declare_symbols() {
         operation->declare_symbols();
     }
 
-    symbol_table::pop_and_save_scope(identifier);
+    symbol_table::pop_scope();
 }
 
 /**
@@ -177,7 +177,7 @@ void GateDeclaration::verify() {
     for (auto&& stmt : body) {
         stmt->verify();
     }
-    symbol_table::pop_and_save_scope(identifier);
+    symbol_table::pop_scope();
 }
 
 /**

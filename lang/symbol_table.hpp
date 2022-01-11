@@ -145,41 +145,41 @@ struct GateArgument: public Symbol {
 };
 
 struct Scope {
-public:
-    std::shared_ptr<Scope> outer_scope;
-    std::unordered_map<std::string, std::shared_ptr<Symbol>> symbols;
+private:
+    std::string _id;
+    std::shared_ptr<Scope> _outer_scope { nullptr };
+    std::unordered_map<std::string, std::shared_ptr<Symbol>> _symbols;
 
-    Scope() {};
-    Scope(std::shared_ptr<Scope> outer): outer_scope(outer) {};
+    friend void push_scope(std::string);
+    friend void pop_scope();
+    friend bool restore_scope(std::string);
+    friend void declare(std::shared_ptr<Symbol> symbol);
+    friend std::optional<std::shared_ptr<Symbol>> get(std::string, bool this_scope);
+    friend void dump();
+public:
+    Scope(std::string id): _id(id) {};
+    Scope(std::shared_ptr<Scope> outer, std::string id): _id(id), _outer_scope(outer) {};
 };
 
 /**
  * Create new inner scope and move to it.
  * */
-void push_new_scope();
+void push_scope(std::string name);
 
 /**
- * Destroy current scope and move to parent scope.
+ * Pop the current scope and move to its parent scope.
  * */
 void pop_scope();
 
 /**
- * Pop the current scope and store it so that is can be restored
- * later.
- *
- * @param name the name to use to save the scope
- * */
-void pop_and_save_scope(std::string name);
-
-/**
- * Restore a saved scope
+ * Restore a saved scope.
  *
  * @return true if scope was restored and false if scope was not found
  * */
 bool restore_scope(std::string name);
 
 /**
- * Declare a new symbol, identified by symbol.name
+ * Declare a new symbol in the current scope.
  * */
 void declare(std::shared_ptr<Symbol> symbol);
 
@@ -191,7 +191,7 @@ void declare(std::shared_ptr<Symbol> symbol);
 std::optional<std::shared_ptr<Symbol>> get(std::string name, bool this_scope=false);
 
 /**
- * Print the contents 
+ * Print the contents of all the scopes
  * */
 void dump();
 
