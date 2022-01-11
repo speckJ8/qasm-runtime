@@ -26,14 +26,11 @@
 namespace lang {
 namespace sema {
 
-void declare_symbols(Program& program) {
+void verify(Program& program) {
     symbol_table::push_scope("global");
     for (auto&& stmt : program.statements) {
         stmt->declare_symbols();
     }
-}
-
-void verify(Program& program) {
     for (auto&& stmt : program.statements) {
         stmt->verify();
     }

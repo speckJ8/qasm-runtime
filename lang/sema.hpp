@@ -30,7 +30,10 @@
 namespace lang {
 namespace sema {
 
-void declare_symbols(Program& program);
+/**
+ * Declare in the symbol table all of the symbols defined by the program and
+ * then perform the semantic analysis.
+ * */
 void verify(Program& program);
 
 }
