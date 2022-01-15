@@ -25,7 +25,8 @@
 #include <iostream>
 #include <tuple>
 #include <vector>
-#include "runtime/math/math.hpp"
+#include "runtime/math/unitary.hpp"
+#include "runtime/math/vector.hpp"
 
 using namespace runtime::math;
 using namespace std::complex_literals;
@@ -88,10 +89,21 @@ TEST(Math, MatMul) {
         },
     };
     for (auto& [ mat_a, mat_b, res ] : test_data) {
-        unitary_t ma(mat_a);
-        unitary_t mb(mat_b);
-        unitary_t eres(res);
-        unitary_t _res = ma*mb;
-        EXPECT_EQ(eres == _res, true);
+        unitary_t _res = unitary_t(mat_a)*unitary_t(mat_b);
+        EXPECT_EQ(_res, unitary_t(res));
+    }
+}
+
+TEST(Math, VecTensor) {
+    std::vector<std::tuple<cxv_t, cxv_t, cxv_t>> test_data = {
+        {
+            { 1.f, 2.f },
+            { 3.f, 4.f, 5.f },
+            { 3.f, 4.f, 5.f, 6.f, 8.f, 10.f }
+        },
+    };
+    for (auto& [ vec_a, vec_b, res ] : test_data) {
+        vector_t _res = vector_t(vec_a).tensor(vector_t(vec_b));
+        EXPECT_EQ(_res, vector_t(res));
     }
 }
