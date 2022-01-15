@@ -9,6 +9,9 @@ if(USE_SIMD)
     add_library(MatApplySimd mat_apply.S)
     add_library(MatMulSimd mat_mul.S)
     target_link_libraries(Unitary PRIVATE MatApplySimd MatMulSimd)
+
+    add_library(VecTensorSimd vec_tensor.S)
+    target_link_libraries(Vector PRIVATE VecTensorSimd)
 endif()
 
 if(USE_CUDA)

@@ -94,7 +94,7 @@ public:
         }
     }
 
-    void tensor(const Vector& other, Vector& res) const;
+    Vector tensor(const Vector& other) const;
 
     inline size_t size() const {
         return _size;

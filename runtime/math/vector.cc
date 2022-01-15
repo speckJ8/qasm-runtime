@@ -21,19 +21,45 @@
  */
 
 #include "vector.hpp"
-#include <cassert>
+
+/**
+ * Compute the tensor product of two vectors
+ * */
+void vec_tensor(const runtime::math::Vector& vec_a,
+                const runtime::math::Vector& vec_b,
+                runtime::math::Vector& res);
+// defined in vec_tensor.S
+extern "C" void vec_tensor__avx(const void* vec_a, size_t size_vec_a,
+                                const void* vec_b, size_t size_vec_b,
+                                void* res);
 
 namespace runtime {
 namespace math {
 
-void Vector::tensor(const Vector& other, Vector& res) const {
-    assert(res.size() == this->size()*other.size());
-    for (size_t i = 0; i < this->size(); i++) {
-        for (size_t j = 0; j < other.size(); j++) {
-            res[i*other.size() + j] = (*this)[i]*other[j];
-        }
+Vector Vector::tensor(const Vector& other) const {
+    Vector res(this->size()*other.size());
+#ifdef USE_SIMD
+    if (__builtin_cpu_supports("avx") && this->size() >= 4) {
+        vec_tensor__avx(other.ptr(), other.size(), this->ptr(), this->size(), res.ptr());
+    } else {
+        vec_tensor(*this, other, res);
     }
+#else
+    vec_tensor(*this, other, res);
+#endif
+    return res;
 }
 
 }
+}
+
+void vec_tensor(const runtime::math::Vector& vec_a,
+                const runtime::math::Vector& vec_b,
+                runtime::math::Vector& res)
+{
+    for (size_t i = 0; i < vec_a.size(); i++) {
+        for (size_t j = 0; j < vec_b.size(); j++) {
+            res[i*vec_b.size() + j] = vec_a[i]*vec_b[j];
+        }
+    }
 }
