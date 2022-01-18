@@ -77,7 +77,7 @@ public:
     }
 
     Unitary(std::initializer_list<cx_t> entries) {
-        size_t dim = std::floor(std::sqrt(entries.size()));
+        size_t dim = std::sqrt(entries.size());
         assert(dim*dim == entries.size());
         _dim = dim;
 #ifdef USE_SIMD
@@ -100,6 +100,14 @@ public:
         if (_entries != nullptr) {
             free(_entries);
         }
+    }
+
+    static Unitary id(size_t dim) {
+        Unitary id(dim);
+        for (size_t i = 0; i < dim; i++) {
+            id(i, i) = 1;
+        }
+        return id;
     }
 
     inline size_t dim() const {
@@ -130,7 +138,16 @@ public:
 
     Vector operator*(const Vector& target) const;
 
-    void redimension(size_t dimension, std::vector<size_t> targets, Unitary& res);
+    /**
+     * Transform the matrix to a representation on a larger vector space.
+     * In the new representation has a larger dimension but it only acts on a subspace
+     * of this larger vector space.
+     * `permutation` indicates what vectors in this larger vector space that the
+     * matrix acts on.
+     * */
+    Unitary redimension(const std::vector<size_t>& permutation);
+
+    Unitary tensor(const Unitary& other) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Unitary& m) {
         for (size_t i = 0; i < m._dim; i++) {

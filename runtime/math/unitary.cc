@@ -43,6 +43,14 @@ void mat_mul(const runtime::math::Unitary& mat_a,
 // defined in mat_mul.S
 extern "C" void mat_mul__avx(const void* mat_a, const void* mat_b, void* res, size_t dim);
 
+/**
+ * Compute the tensor product of two complex matrices.
+ * */
+void mat_tensor(const runtime::math::Unitary& mat_a,
+                const runtime::math::Unitary& mat_b,
+                runtime::math::Unitary& res);
+
+size_t permute_index(const std::vector<size_t>& permutation, size_t index);
 
 namespace runtime {
 namespace math {
@@ -77,6 +85,29 @@ Unitary Unitary::operator*(const Unitary& other) const {
     return res;
 }
 
+Unitary Unitary::redimension(const std::vector<size_t>& permutation) {
+    size_t dim = std::exp2(permutation.size());
+    Unitary id = Unitary::id(dim/this->dim());
+    Unitary tn = this->tensor(id);
+    Unitary res(tn.dim());
+    for (size_t i = 0; i < res.dim(); i++) {
+        for (size_t j = 0; j < res.dim(); j++) {
+            auto k = permute_index(permutation, i);
+            auto l = permute_index(permutation, j);
+            std::cout << "p(" << i << ") = " << k << ", "
+                      << "p(" << j << ") = " << l << "\n";
+            res(k, l) = tn(i, j);
+        }
+    }
+    return res;
+}
+
+Unitary Unitary::tensor(const Unitary& other) const {
+    Unitary res(this->dim()*other.dim());
+    mat_tensor(*this, other, res);
+    return res;
+}
+
 }
 }
 
@@ -102,4 +133,33 @@ void mat_mul(const runtime::math::Unitary& mat_a,
             }
         }
     }
+}
+
+void mat_tensor(const runtime::math::Unitary& mat_a,
+                const runtime::math::Unitary& mat_b,
+                runtime::math::Unitary& res)
+{
+    for (size_t i = 0; i < mat_a.dim(); i++) {
+        for (size_t k = 0; k < mat_b.dim(); k++) {
+            for (size_t j = 0; j < mat_a.dim(); j++) {
+                for (size_t l = 0; l < mat_b.dim(); l++) {
+                    res(i*mat_b.dim() + k, j*mat_b.dim() + l) = mat_a(i, j)*mat_b(k, l);
+                }
+            }
+        }
+    }
+}
+
+size_t permute_index(const std::vector<size_t>& permutation, size_t index) {
+    size_t new_index = 0;
+    for (size_t i = 0; i < permutation.size(); i++) {
+        size_t val = (1 << i) & index;
+        if (permutation[i] > i) {
+            val <<= (permutation[i] - i);
+        } else {
+            val >>= (i - permutation[i]);
+        }
+        new_index |= val;
+    }
+    return new_index;
 }
