@@ -53,15 +53,18 @@ public:
     Unitary(const Unitary&) = delete;
     Unitary operator=(const Unitary&) = delete;
 
-    Unitary& operator=(const Unitary&& u) {
+    Unitary& operator=(Unitary&& u) {
         if (_entries != nullptr) {
             free(_entries);
         }
         _dim = u._dim;
         _entries = u._entries;
+        u._entries = nullptr;
         return *this;
     }
-    Unitary(const Unitary&& u): _dim(u._dim), _entries(u._entries) {}
+    Unitary(Unitary&& u): _dim(u._dim), _entries(u._entries) {
+        u._entries = nullptr;
+    }
 
     Unitary(size_t dim): _dim(dim) {
 #ifdef USE_SIMD

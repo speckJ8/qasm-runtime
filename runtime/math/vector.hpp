@@ -48,15 +48,18 @@ public:
     Vector(const Vector&) = delete;
     Vector operator=(const Vector&) = delete;
 
-    Vector& operator=(const Vector&& v) {
+    Vector& operator=(Vector&& v) {
         if (_entries != nullptr) {
             free(_entries);
         }
         _size = v._size;
         _entries = v._entries;
+        v._entries = nullptr;
         return *this;
     }
-    Vector(const Vector&& v): _size(v._size), _entries(v._entries) {}
+    Vector(Vector&& v): _size(v._size), _entries(v._entries) {
+        v._entries = nullptr;
+    }
 
     Vector(size_t size): _size(size) {
 #ifdef USE_SIMD
