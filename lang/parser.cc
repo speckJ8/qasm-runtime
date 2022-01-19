@@ -63,10 +63,7 @@ Program parse(Input& input) {
     using namespace lexer;
 
     std::vector<std::shared_ptr<Statement>> statements;
-    std::vector<Program> includes;
-
     parse_header(input);
-
     Token tk = next_token(input);
     while (tk.type == Token::Type::Keyword_Include) {
         Token include_file = next_token(input);
@@ -81,7 +78,7 @@ Program parse(Input& input) {
         read_semicolon(input);
         /*
         Program include = parse(include_file.value);
-        includes.push_back(include);
+        statements.emplace_back(include.statements);
         */
         tk = next_token(input);
     }
@@ -93,7 +90,7 @@ Program parse(Input& input) {
         tk = next_token(input);
     }
 
-    return Program(input.filename(), statements, includes);
+    return Program(input.filename(), statements);
 }
 
 /**
