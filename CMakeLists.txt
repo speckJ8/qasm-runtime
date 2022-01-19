@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(QasmRuntime)
-enable_language(CUDA ASM)
+enable_language(ASM)
 enable_testing()
 
 add_compile_options(
-    -Wall
+    -W -Wall -Wextra -Werror
     $<$<CONFIG:DEBUG>:-O0>
     $<$<CONFIG:DEBUG>:-g>
     $<$<CONFIG:RELEASE>:-O3>
@@ -23,6 +23,7 @@ target_link_libraries(Qasm PUBLIC Lang)
 target_include_directories(Qasm PUBLIC "${PROJECT_BINARY_DIRECTORY}")
 
 configure_file(config.h.in config.h)
+configure_file(sample.qasm sample.qasm COPYONLY)
 
 include(FetchContent)
 FetchContent_Declare(
