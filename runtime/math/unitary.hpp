@@ -60,6 +60,7 @@ public:
         _dim = u._dim;
         _entries = u._entries;
         u._entries = nullptr;
+        u._dim = 0;
         return *this;
     }
     Unitary(Unitary&& u): _dim(u._dim), _entries(u._entries) {

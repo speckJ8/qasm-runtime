@@ -55,6 +55,7 @@ public:
         _size = v._size;
         _entries = v._entries;
         v._entries = nullptr;
+        v._size = 0;
         return *this;
     }
     Vector(Vector&& v): _size(v._size), _entries(v._entries) {
