@@ -54,6 +54,9 @@ public:
     Unitary operator=(const Unitary&) = delete;
 
     Unitary& operator=(const Unitary&& u) {
+        if (_entries != nullptr) {
+            free(_entries);
+        }
         _dim = u._dim;
         _entries = u._entries;
         return *this;

@@ -49,6 +49,9 @@ public:
     Vector operator=(const Vector&) = delete;
 
     Vector& operator=(const Vector&& v) {
+        if (_entries != nullptr) {
+            free(_entries);
+        }
         _size = v._size;
         _entries = v._entries;
         return *this;
@@ -125,11 +128,11 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Vector& v) {
-        os << "{@" << v._size << " ";
+        os << "{ ";
         for (size_t i = 0; i < v._size; i++) {
             os << std::setw(3) << v._entries[i] << ", ";
         }
-        os << " }" << std::endl;
+        os << " }";
         return os;
     }
 
