@@ -133,7 +133,7 @@ public:
         return os;
     }
 
-    const bool operator==(const Vector& other) const {
+    bool operator==(const Vector& other) const {
         for (size_t i = 0; i < size(); i++) {
             if (std::abs((*this)[i] - other[i]) > 0.001f) {
                 return false;

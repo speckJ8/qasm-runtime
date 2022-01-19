@@ -160,7 +160,7 @@ public:
         return os;
     }
 
-    const bool operator==(const Unitary& other) const {
+    bool operator==(const Unitary& other) const {
         for (size_t i = 0; i < dim(); i++) {
             for (size_t j = 0; j < dim(); j++) {
                 if (std::abs((*this)(i, j) - other(i, j)) > 0.001f) {
