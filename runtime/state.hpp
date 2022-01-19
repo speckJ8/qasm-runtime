@@ -34,10 +34,10 @@ namespace runtime {
 class State {
 private:
     bool _empty { true };
-    // global state vector
-    math::vector_t _state { 1 };
+    // holds the tensor product of the 2d vectors for each quantum register
+    math::vector_t _quantum_state { 1 };
     /**
-     * Track the postion and offset of all the named registers.
+     * Track the postion and offset of all the named quantum registers.
      * For example, for register definitions
      *     qreg a[2];
      *     qreg b[4];
@@ -49,12 +49,15 @@ private:
      *         a: (6, 1),
      *     }
      * */
-    std::map<std::string, std::tuple<size_t, size_t>> _registers;
+    std::map<std::string, std::tuple<size_t, size_t>> _quantum_registers;
+    // keep the values of the classical registers
+    std::map<std::string, std::vector<float>> _classical_registers;
 
 public:
     State();
 
-    void add_register(std::string name, size_t size);
+    void add_quantum_register(std::string name, size_t size);
+    void add_classical_register(std::string name, size_t size);
 };
 
 };

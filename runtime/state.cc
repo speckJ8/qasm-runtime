@@ -26,16 +26,20 @@
 
 namespace runtime {
 
-void State::add_register(std::string name, size_t size) {
+void State::add_quantum_register(std::string name, size_t size) {
     assert(size > 0);
     math::vector_t new_state_registers(std::exp2l(size));
     new_state_registers[0] = 1.f;
     if (__builtin_expect(_empty, 0)) {
-        _state = std::move(new_state_registers);
+        _quantum_state = std::move(new_state_registers);
     } else {
-        _state = _state.tensor(new_state_registers);
+        _quantum_state = _quantum_state.tensor(new_state_registers);
     }
-    _registers[name] = { _registers.size(), size };
+    _quantum_registers[name] = { _quantum_registers.size(), size };
+}
+
+void State::add_classical_register(std::string name, size_t size) {
+    _classical_registers[name] = std::vector<float>(size, 0.0f);
 }
 
 };
