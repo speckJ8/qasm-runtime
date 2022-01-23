@@ -28,9 +28,9 @@
 # is assumed to a multiple of 4.
 vec_tensor__avx:
     push            %r12
-    mov             $0, %r10
+    xor             %r10, %r10
 _aloop:
-    mov             $0, %r11
+    xor             %r11, %r11
     mov             %rcx, %r12
     imul            %r10, %r12
     vbroadcastsd    (%rdi,%r10,8), %ymm0

@@ -30,18 +30,18 @@
 # a multiple of 4.
 mat_mul__avx:
     push            %r12
-    mov             $0, %r8
+    xor             %r8, %r8
 _rows_loop:
     mov             %rcx, %r11
     imul            %r8, %r11
-    mov             $0, %r9
+    xor             %r9, %r9
 _cols_loop:
     mov             %r11, %rax
     add             %r9, %rax
     vbroadcastsd    (%rdi,%rax,8), %ymm0
     mov             %rcx, %r12
     imul            %r9, %r12
-    mov             $0, %r10
+    xor             %r10, %r10
 _simd_loop:
     mov             %r12, %rax
     add             %r10, %rax
