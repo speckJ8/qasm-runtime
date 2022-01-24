@@ -27,15 +27,18 @@
 #include "lang/error.hpp"
 #include "lang/program.hpp"
 #include "lang/symbol_table.hpp"
+#include "runtime/runtime.hpp"
 
-int main(int argc, char** argv) {
+int main() {
     using namespace lang;
-    std::fstream fs("sample.qasm");
-    Input input(fs, "sample.qasm");
+    std::string file = "sample.qasm";
+    std::fstream fs(file);
+    Input input(fs, file);
     try {
         auto program = parser::parse(input);
         sema::verify(program);
-        symbol_table::dump();
+        // symbol_table::dump();
+        runtime::execute(program);
     } catch (Error& e) {
         e.show(std::cout, input);
     }
