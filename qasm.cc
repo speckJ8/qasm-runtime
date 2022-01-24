@@ -27,7 +27,7 @@
 #include "lang/error.hpp"
 #include "lang/program.hpp"
 #include "lang/symbol_table.hpp"
-#include "runtime/runtime.hpp"
+// #include "runtime/runtime.hpp"
 
 int main() {
     using namespace lang;
@@ -38,7 +38,7 @@ int main() {
         auto program = parser::parse(input);
         sema::verify(program);
         // symbol_table::dump();
-        runtime::execute(program);
+        // runtime::execute(program);
     } catch (Error& e) {
         e.show(std::cout, input);
     }
