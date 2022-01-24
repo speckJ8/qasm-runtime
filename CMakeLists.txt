@@ -5,7 +5,7 @@ enable_language(ASM)
 enable_testing()
 
 add_compile_options(
-    -W -Wall -Wextra -Werror
+    -Wall -Wextra -Werror
     $<$<CONFIG:DEBUG>:-O0>
     $<$<CONFIG:DEBUG>:-g>
     $<$<CONFIG:RELEASE>:-O3>
@@ -19,7 +19,8 @@ add_subdirectory(runtime)
 add_subdirectory(tests)
 
 add_executable(Qasm qasm.cc)
-target_link_libraries(Qasm PUBLIC Lang)
+target_link_libraries(Qasm PRIVATE Lang)
+# target_link_libraries(Qasm PRIVATE Runtime)
 target_include_directories(Qasm PUBLIC "${PROJECT_BINARY_DIRECTORY}")
 
 configure_file(config.h.in config.h)
