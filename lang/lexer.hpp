@@ -23,11 +23,11 @@
 #ifndef __QASM_LANG__LEXER_H__
 #define __QASM_LANG__LEXER_H__
 
-#include "input.hpp"
-
 #include <istream>
+#include <tuple>
 #include <variant>
 
+#include "input.hpp"
 
 namespace lang {
 namespace lexer {

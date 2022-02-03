@@ -53,8 +53,7 @@ const std::string lexer::Token::Exp      = "exp";
 const std::string lexer::Token::Ln       = "ln";
 const std::string lexer::Token::Sqrt     = "sqrt";
 
-
-std::pair<std::string, bool> read_number(char first_char, Input& input);
+std::tuple<std::string, bool, bool> read_number(char first_char, Input& input);
 std::string read_string(char first_char, Input& input);
 std::optional<std::string> read_literal_string(Input& input);
 std::string read_comment(Input& input);
@@ -249,11 +248,14 @@ lexer::Token lexer::_next_token(Input& input) {
         return Token(Token::Id, Token::Identifier, text, line, col);
     }
     else if (std::isdigit(next)) {
-        auto [ num, isinteger ] = read_number(next, input);
-        if (isinteger)
+        auto [num, isinteger, valid] = read_number(next, input);
+        if (!valid) {
+            return Token(Token::Invalid, Token::InvalidK, num, line, col);
+        } else if (isinteger) {
             return Token(Token::NonNegativeInteger, Token::Literal, num, line, col);
-        else
+        } else {
             return Token(Token::Real, Token::Literal, num, line, col);
+        }
     }
     else if (next == '"') {
         auto str = read_literal_string(input);
@@ -289,29 +291,64 @@ std::string read_string(char first_char, Input& input) {
     return result;
 }
 
-
 /**
  * Reads an integer or a real number.
  * Returns the string representation, true if the number is an integer and false
- * if it is a real.
- * TODO: read real number in scientific notation
+ * if it is a real. If the number is invalid, the last boolean in the output is set
+ * to false.
  * */
-std::pair<std::string, bool> read_number(char first_char, Input& input) {
+std::tuple<std::string, bool, bool> read_number(char first_char, Input& input) {
     std::string result(1, first_char);
     bool isinteger = true;
-    int prox = input.peek();
-    while (std::isdigit(prox) || (prox == '.' && isinteger == true)) {
-        char c = input.get();
-        result.append(1, c);
-        if (c == '.') isinteger = false;
+    bool haspredot = std::isdigit(first_char);
+    bool haspostdot = false;
+    char prox = input.peek();
+    while (std::isdigit(prox)) {
+        haspredot = true;
+        result.append(1, input.get());
         prox = input.peek();
     }
-    return { result, isinteger };
+    if (prox != '.' && prox != 'e' && prox != 'E') {
+        return {result, isinteger, haspredot};
+    } else if ((prox == 'e' || prox == 'E') && haspredot) {
+        goto read_exponential;
+    } else if (prox == '.') {
+        isinteger = false;
+        result.append(1, input.get());
+    } else {
+        return {result, isinteger, haspredot};
+    }
+    prox = input.peek();
+    while (std::isdigit(prox)) {
+        haspostdot = true;
+        result.append(1, input.get());
+        prox = input.peek();
+    }
+    if (prox != 'e' && prox != 'E') {
+        return {result, isinteger, haspredot || haspostdot};
+    }
+read_exponential:
+    if (prox != 'e' && prox != 'E') {
+        return {result, isinteger, false};
+    }
+    result.append(1, input.get());
+    prox = input.peek();
+    if (prox == '-' || prox == '+') {
+        result.append(1, input.get());
+        prox = input.peek();
+    }
+    bool hasexpdigits = false;
+    while (std::isdigit(prox)) {
+        hasexpdigits = true;
+        result.append(1, input.get());
+        prox = input.peek();
+    }
+    return {result, isinteger, hasexpdigits};
 }
 
 /**
  * Read the interior of a string: "<interior>"
- * Returns the string or empty if the expression
+ * Returns the string or std::nullopt if the expression
  * is not terminated by a "
  * TODO: support escape characters
  * */

@@ -36,7 +36,7 @@ TEST(Lexer, Basic) {
         "gate cx c,t { CX c,t; }"
         "# this is some comment... \n"
         "gate x a { u3(pi,2/3,0) a; }"
-        "gate y a { U(0,0,2*3^4.0) a; }"
+        "gate y a { U(-12.34e-10,0,2*3^4.0) a; }"
         "# this is another comment\n"
         "# test, test, test\n"
         "x qq[0];"
@@ -277,7 +277,7 @@ TEST(Lexer, Basic) {
             Token::Symbol,
             "}",
         },
-        // gate y a { U(0,0,2*3^4.0) a; }
+        // gate y a { U(-12.34e-10,0,2*3^4.0) a; }
         {
             Token::Keyword_Gate,
             Token::Keyword,
@@ -309,9 +309,14 @@ TEST(Lexer, Basic) {
             "(",
         },
         {
-            Token::NonNegativeInteger,
+            Token::Symbol_Minus,
+            Token::Symbol,
+            "-",
+        },
+        {
+            Token::Real,
             Token::Literal,
-            "0",
+            "12.34e-10",
         },
         {
             Token::Symbol_Comma,
