@@ -25,54 +25,51 @@
 #include <cassert>
 #include <iostream>
 
+#define ID(name) _current_scope->_id + "::" + name
+
 namespace lang {
 namespace symbol_table {
 
-#define ID(name) current_scope->_id + "::" + name
-
-std::shared_ptr<Scope> current_scope;
-std::unordered_map<std::string, std::shared_ptr<Scope>> saved_scopes;
+std::shared_ptr<Scope> _current_scope;
+std::unordered_map<std::string, std::shared_ptr<Scope>> _saved_scopes;
 
 void push_scope(std::string name) {
-    if (current_scope == nullptr) {
-        current_scope = std::make_shared<Scope>(name);
-        saved_scopes.insert({ name, current_scope });
+    if (_current_scope == nullptr) {
+        _current_scope = std::make_shared<Scope>(name);
+        _saved_scopes.insert({name, _current_scope});
     } else {
         auto id = ID(name);
-        current_scope = std::make_shared<Scope>(current_scope, id);
-        saved_scopes.insert({ id, current_scope });
+        _current_scope = std::make_shared<Scope>(_current_scope, id);
+        _saved_scopes.insert({id, _current_scope});
     }
 }
 
-void pop_scope() {
-    current_scope = current_scope->_outer_scope;
-}
+void pop_scope() { _current_scope = _current_scope->_outer_scope; }
 
 bool restore_scope(std::string name) {
     auto id = ID(name);
-    auto scope = saved_scopes.find(id);
-    if (scope == saved_scopes.end()) {
+    auto scope = _saved_scopes.find(id);
+    if (scope == _saved_scopes.end()) {
         return false;
     } else {
-        current_scope = scope->second;
+        _current_scope = scope->second;
         return true;
     }
 }
 
 void declare(std::shared_ptr<symbol_table::Symbol> s) {
-    assert(current_scope != nullptr);
-    current_scope->_symbols.insert({ s->name, s });
+    assert(_current_scope != nullptr);
+    _current_scope->_symbols.insert({s->name, s});
 }
 
 std::optional<std::shared_ptr<Symbol>> get(std::string name, bool this_scope) {
-    assert(current_scope != nullptr);
+    assert(_current_scope != nullptr);
 
     if (this_scope) {
-        auto symbol = current_scope->_symbols.find(name);
-        if (symbol != current_scope->_symbols.end())
-            return std::optional(symbol->second);
+        auto symbol = _current_scope->_symbols.find(name);
+        if (symbol != _current_scope->_symbols.end()) return std::optional(symbol->second);
     } else {
-        auto scope = current_scope;
+        auto scope = _current_scope;
         while (scope != nullptr) {
             auto symbol = scope->_symbols.find(name);
             if (symbol != scope->_symbols.end()) {
@@ -87,7 +84,7 @@ std::optional<std::shared_ptr<Symbol>> get(std::string name, bool this_scope) {
 }
 
 void dump() {
-    for (auto& [ name, scope ] : saved_scopes) {
+    for (auto& [name, scope] : _saved_scopes) {
         std::cout << "--------------[ scope: " << name << " ]--------------\n";
         assert(scope != nullptr);
         for (auto& element : scope->_symbols) {
