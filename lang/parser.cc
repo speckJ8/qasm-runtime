@@ -31,33 +31,28 @@
 namespace lang {
 namespace parser {
 
-std::string parse_header(Input&);
-std::shared_ptr<Statement> parse_statement(Input&);
-Variable parse_argument(Input&);
-ExpressionList parse_expression_list(Input&);
-IdentifierList parse_id_list(Input&);
-MixedList parse_mixed_list(Input&);
-IfStatement parse_if_statement(Input&, size_t, size_t);
-MeasureOperation parse_measure_operation(Input&, size_t, size_t);
-ResetOperation parse_reset_operation(Input&, size_t, size_t);
-BarrierOperation parse_barrier_operation(Input&, size_t, size_t);
-UnitaryOperation parse_unitary_operation(Input&,
-                                         size_t,
-                                         size_t,
-                                         UnitaryOperation::Operator,
-                                         std::string);
-OpaqueDeclaration parse_opaque_declaration(Input&, size_t, size_t);
-GateDeclaration parse_gate_declaration(Input&, size_t, size_t);
-VariableDeclaration parse_variable_declaration(Input&,
-                                               size_t,
-                                               size_t,
-                                               VariableDeclaration::DeclarationType);
-std::shared_ptr<Statement> parse_quantum_operation(Input&);
-std::shared_ptr<Expression> parse_expression(Input&);
-std::shared_ptr<Expression> parse_mult_expression(Input&);
-std::shared_ptr<Expression> parse_pow_expression(Input&);
-std::shared_ptr<Expression> parse_atom_expression(Input&);
-void read_semicolon(Input&);
+static std::string parse_header(Input&);
+static std::shared_ptr<Statement> parse_statement(Input&);
+static Variable parse_argument(Input&);
+static ExpressionList parse_expression_list(Input&);
+static IdentifierList parse_id_list(Input&);
+static MixedList parse_mixed_list(Input&);
+static IfStatement parse_if_statement(Input&, size_t, size_t);
+static MeasureOperation parse_measure_operation(Input&, size_t, size_t);
+static ResetOperation parse_reset_operation(Input&, size_t, size_t);
+static BarrierOperation parse_barrier_operation(Input&, size_t, size_t);
+static UnitaryOperation parse_unitary_operation(Input&, size_t, size_t, UnitaryOperation::Operator,
+                                                std::string);
+static OpaqueDeclaration parse_opaque_declaration(Input&, size_t, size_t);
+static GateDeclaration parse_gate_declaration(Input&, size_t, size_t);
+static VariableDeclaration parse_variable_declaration(Input&, size_t, size_t,
+                                                      VariableDeclaration::DeclarationType);
+static std::shared_ptr<Statement> parse_quantum_operation(Input&);
+static std::shared_ptr<Expression> parse_expression(Input&);
+static std::shared_ptr<Expression> parse_mult_expression(Input&);
+static std::shared_ptr<Expression> parse_pow_expression(Input&);
+static std::shared_ptr<Expression> parse_atom_expression(Input&);
+static void read_semicolon(Input&);
 
 Program parse(Input& input) {
     using namespace lexer;
