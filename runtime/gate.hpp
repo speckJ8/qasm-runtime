@@ -23,12 +23,16 @@
 #ifndef __RUNTIME__GATE_H__
 #define __RUNTIME__GATE_H__
 
-#include "math/unitary.hpp"
 #include <complex>
+#include <memory>
 #include <optional>
 #include <vector>
 
+#include "math/unitary.hpp"
+
 namespace runtime {
+
+class State;
 
 class Gate {
 public:
@@ -46,7 +50,7 @@ public:
      * case the target indices of bar are 0 and 1.
      * */
     struct SubGate {
-        Gate& gate;
+        const std::shared_ptr<Gate> gate;
         std::vector<unsigned int> target_qubits;
     };
 
@@ -69,14 +73,11 @@ public:
     Gate(float theta, float phi, float lambda);
 
     /**
-     * Define a gate in terms of other gates.
-     * The matrix of the new gate is obtained by appropriately
-     * tensoring the matrices of the subgates.
-     * For example
+     * A gate defined by composing a series of applications of other gates.
      * */
     Gate(unsigned int qubits, SubGate...);
 
-    // State operator()(State& state);
+    friend State;
 
 private:
     /**

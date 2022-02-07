@@ -7,7 +7,7 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
@@ -20,31 +20,33 @@
  * SOFTWARE.
  */
 
+
+#ifndef __RUNTIME__RUNTIME_H__
+#define __RUNTIME__RUNTIME_H__
+
+#include "lang/program.hpp"
 #include "state.hpp"
-#include <cassert>
-#include <cmath>
+
+#include <string>
 
 namespace runtime {
 
-void State::add_quantum_register(std::string name, size_t size) {
-    assert(size > 0);
-    size_t dim = std::exp2l(size);
-    size_t offset = 0;
-    math::vector_t new_state_registers(dim);
-    new_state_registers[0] = 1.f;
-    if (__builtin_expect(_empty, 0)) {
-        _quantum_state = std::move(new_state_registers);
-        _empty = false;
-    } else {
-        _quantum_state = _quantum_state.tensor(new_state_registers);
-        offset = std::get<0>(_quantum_registers.end()->second) +
-                 std::get<1>(_quantum_registers.end()->second);
-    }
-    _quantum_registers[name] = { offset, size };
-}
+class Runtime {
+private:
+    State _state;
+    std::unordered_map<std::string, std::shared_ptr<lang::GateDeclaration>> _gates;
 
-void State::add_classical_register(std::string name, size_t size) {
-    _classical_registers[name] = std::vector<float>(size, 0.0f);
-}
+    void declare_register(const std::shared_ptr<lang::VariableDeclaration>&);
+    void declare_gate(const std::shared_ptr<lang::GateDeclaration>&);
+    void execute_unitary(const std::shared_ptr<lang::UnitaryOperation>&);
+    void execute_measure(const std::shared_ptr<lang::MeasureOperation>&);
+    void execute_reset(const std::shared_ptr<lang::ResetOperation>&);
+    void execute_if_statement(const std::shared_ptr<lang::IfStatement>&);
 
+public:
+    void execute(const lang::Program&);
+    const State& get_state() const;
 };
+}
+
+#endif // __RUNTIME__RUNTIME_H__
