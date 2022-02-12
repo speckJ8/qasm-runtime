@@ -25,7 +25,9 @@
 #include <iostream>
 #include <memory>
 
+#include "error.hpp"
 #include "gate.hpp"
+#include "lang/symbol_table.hpp"
 
 namespace runtime {
 
@@ -53,12 +55,26 @@ void Runtime::declare_register(const std::shared_ptr<lang::VariableDeclaration>&
     }
 }
 
-
-void Runtime::execute_unitary(const std::shared_ptr<lang::UnitaryOperation>&) {}
-
-void Runtime::execute_measure(const std::shared_ptr<lang::MeasureOperation>&) {}
-
-void Runtime::execute_reset(const std::shared_ptr<lang::ResetOperation>&) {}
-
-void Runtime::execute_if_statement(const std::shared_ptr<lang::IfStatement>&) {}
+void Runtime::declare_gate(const std::shared_ptr<lang::GateDeclaration>& declaration) {
+    _gates[declaration->identifier] = declaration;
 }
+
+void Runtime::execute_unitary(const std::shared_ptr<lang::UnitaryOperation>&) {
+}
+
+void Runtime::execute_measure(const std::shared_ptr<lang::MeasureOperation>&) {
+}
+
+void Runtime::execute_reset(const std::shared_ptr<lang::ResetOperation>& reset) {
+    auto qreg_name = reset->target.identifier;
+    if (reset->target.is_atom()) {
+        _state.reset_quantum_register(qreg_name);
+    } else {
+        auto index = reset->target.index.value();
+        _state.reset_quantum_register_partial(qreg_name, index);
+    }
+}
+
+void Runtime::execute_if_statement(const std::shared_ptr<lang::IfStatement>&) {
+}
+}  // namespace runtime
