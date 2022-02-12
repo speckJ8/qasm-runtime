@@ -21,8 +21,11 @@
  */
 
 #include "state.hpp"
+
 #include <cassert>
 #include <cmath>
+
+#include "error.hpp"
 
 namespace runtime {
 
@@ -37,8 +40,8 @@ void State::add_quantum_register(std::string name, size_t size) {
         _empty = false;
     } else {
         _quantum_state = _quantum_state.tensor(new_state_registers);
-        offset = std::get<0>(_quantum_registers.end()->second) +
-                 std::get<1>(_quantum_registers.end()->second);
+        auto last_off_and_size = _quantum_registers.end()->second;
+        offset = std::get<0>(last_off_and_size) + std::get<1>(last_off_and_size);
     }
     _quantum_registers[name] = { offset, size };
 }
@@ -47,4 +50,38 @@ void State::add_classical_register(std::string name, size_t size) {
     _classical_registers[name] = std::vector<float>(size, 0.0f);
 }
 
+void State::set_classical_register(std::string name, std::vector<float> value) {
+    _classical_registers[name] = value;
+}
+
+void State::reset_quantum_register(std::string name) {
+    auto qreg = _quantum_registers.find(name);
+    if (qreg == _quantum_registers.end()) {
+        throw Error("undefined quantum register `" + name + "`");
+    }
+    auto [offset, size] = qreg->second;
+    size_t step = std::exp2l(offset);
+    size_t block = std::exp2l(size);
+    for (size_t i = step; i < _quantum_state.size(); i += step) {
+        _quantum_state.reset(i, i + block);
+    }
+    _quantum_state.normalize();
+}
+
+void State::reset_quantum_register_partial(std::string name, size_t index) {
+    auto qreg = _quantum_registers.find(name);
+    if (qreg == _quantum_registers.end()) {
+        throw Error("undefined quantum register `" + name + "`");
+    }
+    auto [offset, size] = qreg->second;
+    size_t step = std::exp2l(offset + index);
+    size_t block = 2;
+    for (size_t i = step; i < _quantum_state.size(); i += step) {
+        _quantum_state.reset(i, i + block);
+    }
+    _quantum_state.normalize();
+}
+
+void State::measure(std::string qreg, std::string creg) {
+}
 };

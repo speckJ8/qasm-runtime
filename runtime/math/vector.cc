@@ -21,6 +21,7 @@
  */
 
 #include "vector.hpp"
+#include <cassert>
 
 /**
  * Compute the tensor product of two vectors
@@ -50,6 +51,26 @@ Vector Vector::tensor(const Vector& other) const {
     return res;
 }
 
+void Vector::reset(size_t start, size_t end) {
+    for (size_t i = start; i < end; i++) {
+        _entries[i] = 0;
+    }
+}
+
+void Vector::normalize() {
+    //#ifdef USE_SIMD
+    //#else
+    float norm = 0;
+    for (size_t i = 0; i < _size; i++) {
+        auto abs = std::abs(_entries[i]);
+        norm += abs * abs;
+    }
+    norm = std::sqrt(norm);
+    for (size_t i = 0; i < _size; i++) {
+        _entries[i] = _entries[i] / norm;
+    }
+    //#endif
+}
 }
 }
 

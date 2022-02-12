@@ -59,9 +59,7 @@ TEST(Math, VecApply) {
         vector_t _vec(vec);
         vector_t _res = _mat*_vec;
         vector_t _eres(res);
-        EXPECT_EQ(_eres == _res, true)
-            << "expectedResult=" << _eres << std::endl
-            << "obtainedResult=" << _res << std::endl;
+        EXPECT_EQ(_eres == _res, true);
     }
 }
 
@@ -105,5 +103,44 @@ TEST(Math, VecTensor) {
     for (auto& [ vec_a, vec_b, res ] : test_data) {
         vector_t _res = vector_t(vec_a).tensor(vector_t(vec_b));
         EXPECT_EQ(_res, vector_t(res));
+    }
+}
+
+TEST(Math, MatRedimension) {
+    std::vector<std::tuple<cxv_t, std::vector<size_t>, cxv_t>> test_data = {
+        {
+            {
+                1, 2,
+                3, 4,
+            },
+            { 1, 0 },
+            {
+                1, 2, 0, 0,
+                3, 4, 0, 0,
+                0, 0, 1, 2,
+                0, 0, 3, 4,
+            },
+        },
+    };
+    for (auto& [ mat, perm, res ] : test_data) {
+        auto _res = unitary_t(mat).redimension(perm);
+        EXPECT_EQ(_res, unitary_t(res));
+    }
+}
+
+TEST(Math, VecResetAndNormalize) {
+    std::vector<std::tuple<cxv_t, size_t, size_t, cxv_t>> test_data = {
+        {
+            { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, },
+            2, 5,
+            { 1.f/std::sqrt(154), 2.f/std::sqrt(154), 0, 0, 0,
+                6.f/std::sqrt(154), 7.f/std::sqrt(154), 8.f/std::sqrt(154), },
+        },
+    };
+    for (auto& [ vec, start, end, vec_r ] : test_data) {
+        vector_t v = vector_t(vec);
+        v.reset(start, end);
+        v.normalize();
+        EXPECT_EQ(v, vector_t(vec_r));
     }
 }

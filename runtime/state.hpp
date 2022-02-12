@@ -59,12 +59,22 @@ public:
     void add_quantum_register(std::string name, size_t size);
     void add_classical_register(std::string name, size_t size);
 
-    void set_classical_register(std::string name, std::vector<float> value) {
-        _classical_registers[name] = value;
-    };
+    void set_classical_register(std::string name, std::vector<float> value);
 
-    // apply a gate to the state
-    void operator()(Gate& gate);
+    /**
+     * Set to zero the qubits in a given quantum register
+     * */
+    void reset_quantum_register(std::string name);
+
+    /**
+     * Set to zero a specified qubit in a given quantum register
+     * */
+    void reset_quantum_register_partial(std::string name, size_t index);
+
+    /**
+     * Measure a quantum register into a classical register
+     * */
+    void measure(std::string qreg, std::string creg);
 
     friend std::ostream& operator<<(std::ostream& os, const State& state) {
         os << "    | " << state._quantum_registers.size() << " quantum register(s)\n";

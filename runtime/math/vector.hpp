@@ -131,6 +131,17 @@ public:
         return _entries;
     }
 
+    /**
+     * Set to zero the coefficients between indices `start` and `end`.
+     * */
+    void reset(size_t start, size_t end);
+
+    /**
+     * Normalize the vector such that the sum of the square of the
+     * absolute values of the coefficients equals 1.
+     * */
+    void normalize();
+
     friend std::ostream& operator<<(std::ostream& os, const Vector& v) {
         os << "{ ";
         for (size_t i = 0; i < v._size; i++) {
