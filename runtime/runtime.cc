@@ -31,23 +31,34 @@
 
 namespace runtime {
 
-void Runtime::execute(const lang::Program& program) {
+static State _state;
+static std::unordered_map<std::string, std::shared_ptr<lang::GateDeclaration>> _gates;
+
+void execute(const lang::Program& program) {
     for (auto& stmt : program.statements) {
         if (auto declaration = std::dynamic_pointer_cast<lang::VariableDeclaration>(stmt)) {
             declare_register(declaration);
         } else if (auto declaration = std::dynamic_pointer_cast<lang::GateDeclaration>(stmt)) {
-            _gates[declaration->identifier] = declaration;
+            declare_gate(declaration);
         } else if (auto unitary = std::dynamic_pointer_cast<lang::UnitaryOperation>(stmt)) {
             execute_unitary(unitary);
+        } else if (auto reset = std::dynamic_pointer_cast<lang::ResetOperation>(stmt)) {
+            execute_reset(reset);
+        } else if (auto measure = std::dynamic_pointer_cast<lang::MeasureOperation>(stmt)) {
+            execute_measure(measure);
+        } else if (auto ifstmt = std::dynamic_pointer_cast<lang::IfStatement>(stmt)) {
+            execute_if_statement(ifstmt);
+        } else {
+            throw Error("undefined statement");
         }
     }
 }
 
-const State& Runtime::get_state() const {
+const State& get_state() {
     return _state;
 }
 
-void Runtime::declare_register(const std::shared_ptr<lang::VariableDeclaration>& declaration) {
+static void declare_register(const std::shared_ptr<lang::VariableDeclaration>& declaration) {
     if (declaration->type == lang::VariableDeclaration::Qbit) {
         _state.add_quantum_register(declaration->identifier, declaration->dimension);
     } else {
@@ -55,17 +66,17 @@ void Runtime::declare_register(const std::shared_ptr<lang::VariableDeclaration>&
     }
 }
 
-void Runtime::declare_gate(const std::shared_ptr<lang::GateDeclaration>& declaration) {
+static void declare_gate(const std::shared_ptr<lang::GateDeclaration>& declaration) {
     _gates[declaration->identifier] = declaration;
 }
 
-void Runtime::execute_unitary(const std::shared_ptr<lang::UnitaryOperation>&) {
+static void execute_unitary(const std::shared_ptr<lang::UnitaryOperation>&) {
 }
 
-void Runtime::execute_measure(const std::shared_ptr<lang::MeasureOperation>&) {
+static void execute_measure(const std::shared_ptr<lang::MeasureOperation>&) {
 }
 
-void Runtime::execute_reset(const std::shared_ptr<lang::ResetOperation>& reset) {
+static void execute_reset(const std::shared_ptr<lang::ResetOperation>& reset) {
     auto qreg_name = reset->target.identifier;
     if (reset->target.is_atom()) {
         _state.reset_quantum_register(qreg_name);
@@ -75,6 +86,6 @@ void Runtime::execute_reset(const std::shared_ptr<lang::ResetOperation>& reset) 
     }
 }
 
-void Runtime::execute_if_statement(const std::shared_ptr<lang::IfStatement>&) {
+static void execute_if_statement(const std::shared_ptr<lang::IfStatement>&) {
 }
 }  // namespace runtime
