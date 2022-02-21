@@ -57,10 +57,6 @@ public:
         }
         os << "      |\n";
         int num_lines = context.end_line - context.start_line + 1;
-        if (context.start_line > 0) {
-            os << std::setw(5) << context.start_line - 1 << " | ";
-            os << input.get_read_line(context.start_line - 1) << "\n";
-        }
         for (int i = 0; i < num_lines; i++) {
             auto line = input.get_read_line(context.start_line + i);
             os << std::setw(5) << context.start_line + i << " | ";
@@ -76,7 +72,6 @@ public:
             os << std::setw(5) << context.end_line + 1 << " | ";
             os << input.get_read_line(context.end_line + 1) << "\n";
         }
-        os << "      |\n";
     }
 };
 }
