@@ -92,7 +92,7 @@ bool Variable::is_qubit() {
         return true;
     }
 
-    // if it is a gate argument then it is a qubit
+    // if it is a gate argument then it is not a qubit
     auto gate_parameter = std::dynamic_pointer_cast<symbol_table::GateParameter>(symbol.value());
     if (gate_parameter) {
         return false;
