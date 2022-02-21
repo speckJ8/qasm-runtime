@@ -187,13 +187,35 @@ void GateDeclaration::verify() {
 void MeasureOperation::verify() {
     source.verify();
     target.verify();
-    if (!source.is_qubit()) {
-        std::string msg = "the source '" + source.identifier + 
-                    "' of the measure opeation must be a qubit";
-        throw Error(context, msg);
-    } else if (target.is_qubit()) {
-        std::string msg = "the target '" + target.identifier + 
-                                  "' of the measure opeation must be a cbit";
+
+    if (source.index.has_value()) {
+        throw Error(source.context, "the source of a measure cannot be indexed");
+    }
+    if (target.index.has_value()) {
+        throw Error(target.context, "the target of a measure cannot be indexed");
+    }
+
+    auto source_sym = symbol_table::get(source.identifier);
+    auto target_sym = symbol_table::get(target.identifier);
+    if (!source_sym) {
+        throw Error(source.context, "Variable " + source.identifier + " is not defined");
+    }
+    if (!target_sym) {
+        throw Error(target.context, "Variable " + target.identifier + " is not defined");
+    }
+
+    auto source_var = std::dynamic_pointer_cast<symbol_table::Vector>(source_sym.value());
+    auto target_var = std::dynamic_pointer_cast<symbol_table::Vector>(target_sym.value());
+    if (!source_var || source_var->type != symbol_table::Vector::Qbit) {
+        throw Error(target.context, "the target of the measure opeation must be a qbit");
+    }
+    if (!target_var || target_var->type != symbol_table::Vector::Cbit) {
+        throw Error(target.context, "the target of the measure opeation must be a cbit");
+    }
+
+    if (target_var->dimension != source_var->dimension) {
+        std::string msg =
+            "the source and target registers of a measure must have the same dimension";
         throw Error(context, msg);
     }
 }
@@ -203,6 +225,11 @@ void MeasureOperation::verify() {
  * */
 void ResetOperation::verify() {
     target.verify();
+    if (!target.is_qubit()) {
+        std::string msg =
+            "the target '" + target.identifier + "' of the reset opeation must be a qubit";
+        throw Error(context, msg);
+    }
 }
 
 /**

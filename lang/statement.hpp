@@ -129,8 +129,8 @@ public:
     // qubits acted upon
     IdentifierList arguments;
     // gate implementation
-    std::vector<std::shared_ptr<Statement>> body; 
 
+    std::vector<std::shared_ptr<Statement>> body; 
     GateDeclaration(std::string i, std::optional<IdentifierList> p, IdentifierList a,
                     std::vector<std::shared_ptr<Statement>> b, Context c):
         Statement(c), identifier(i), parameters(p), arguments(a), body(std::move(b))
