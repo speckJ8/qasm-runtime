@@ -31,6 +31,13 @@
 
 namespace runtime {
 
+static void declare_register(const std::shared_ptr<lang::VariableDeclaration>&);
+static void declare_gate(const std::shared_ptr<lang::GateDeclaration>&);
+static void execute_unitary(const std::shared_ptr<lang::UnitaryOperation>&);
+static void execute_measure(const std::shared_ptr<lang::MeasureOperation>&);
+static void execute_reset(const std::shared_ptr<lang::ResetOperation>&);
+static void execute_if_statement(const std::shared_ptr<lang::IfStatement>&);
+
 static State _state;
 static std::unordered_map<std::string, std::shared_ptr<lang::GateDeclaration>> _gates;
 
