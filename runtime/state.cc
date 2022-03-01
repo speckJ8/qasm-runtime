@@ -47,10 +47,10 @@ void State::add_quantum_register(std::string name, size_t size) {
 }
 
 void State::add_classical_register(std::string name, size_t size) {
-    _classical_registers[name] = std::vector<float>(size, 0.0f);
+    _classical_registers[name] = std::vector<bool>(size, false);
 }
 
-void State::set_classical_register(std::string name, std::vector<float> value) {
+void State::set_classical_register(std::string name, std::vector<bool> value) {
     _classical_registers[name] = value;
 }
 
@@ -60,12 +60,7 @@ void State::reset_quantum_register(std::string name) {
         throw Error("undefined quantum register `" + name + "`");
     }
     auto [offset, size] = qreg->second;
-    size_t step = std::exp2l(offset);
-    size_t block = std::exp2l(size);
-    for (size_t i = step; i < _quantum_state.size(); i += step) {
-        _quantum_state.reset(i, i + block);
-    }
-    _quantum_state.normalize();
+    _quantum_state.reset(offset, size);
 }
 
 void State::reset_quantum_register_partial(std::string name, size_t index) {
@@ -73,15 +68,20 @@ void State::reset_quantum_register_partial(std::string name, size_t index) {
     if (qreg == _quantum_registers.end()) {
         throw Error("undefined quantum register `" + name + "`");
     }
-    auto [offset, size] = qreg->second;
-    size_t step = std::exp2l(offset + index);
-    size_t block = 2;
-    for (size_t i = step; i < _quantum_state.size(); i += step) {
-        _quantum_state.reset(i, i + block);
-    }
-    _quantum_state.normalize();
+    auto [offset, _] = qreg->second;
+    _quantum_state.reset(offset+index, 1);
 }
 
-void State::measure(std::string qreg, std::string creg) {
+void State::measure(std::string qreg_name, std::string creg_name) {
+    auto qreg = _quantum_registers.find(qreg_name);
+    auto creg = _classical_registers.find(creg_name);
+    if (qreg == _quantum_registers.end()) {
+        throw Error("undefined quantum register `" + qreg_name + "`");
+    }
+    if (creg == _classical_registers.end()) {
+        throw Error("undefined classical register `" + creg_name + "`");
+    }
+    auto [offset, size] = qreg->second;
+    _quantum_state.measure(offset, size, creg->second);
 }
 };

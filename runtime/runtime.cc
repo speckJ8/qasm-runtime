@@ -36,6 +36,7 @@ static void declare_gate(const std::shared_ptr<lang::GateDeclaration>&);
 static void execute_unitary(const std::shared_ptr<lang::UnitaryOperation>&);
 static void execute_measure(const std::shared_ptr<lang::MeasureOperation>&);
 static void execute_reset(const std::shared_ptr<lang::ResetOperation>&);
+static void execute_barrier(const std::shared_ptr<lang::BarrierOperation>&);
 static void execute_if_statement(const std::shared_ptr<lang::IfStatement>&);
 
 static State _state;
@@ -53,10 +54,14 @@ void execute(const lang::Program& program) {
             execute_reset(reset);
         } else if (auto measure = std::dynamic_pointer_cast<lang::MeasureOperation>(stmt)) {
             execute_measure(measure);
+        } else if (auto barrier = std::dynamic_pointer_cast<lang::BarrierOperation>(stmt)) {
+            execute_barrier(barrier);
         } else if (auto ifstmt = std::dynamic_pointer_cast<lang::IfStatement>(stmt)) {
             execute_if_statement(ifstmt);
+        } else if (auto comment = std::dynamic_pointer_cast<lang::Comment>(stmt)) {
+            // nothing to do
         } else {
-            throw Error("undefined statement");
+            throw Error("undefined statement (" + std::to_string(stmt->context.start_line) + ")");
         }
     }
 }
@@ -80,17 +85,24 @@ static void declare_gate(const std::shared_ptr<lang::GateDeclaration>& declarati
 static void execute_unitary(const std::shared_ptr<lang::UnitaryOperation>&) {
 }
 
-static void execute_measure(const std::shared_ptr<lang::MeasureOperation>&) {
+static void execute_measure(const std::shared_ptr<lang::MeasureOperation>& measure) {
+    auto qreg_name = measure->source.identifier;
+    auto creg_name = measure->target.identifier;
+    _state.measure(qreg_name, creg_name);
 }
 
 static void execute_reset(const std::shared_ptr<lang::ResetOperation>& reset) {
     auto qreg_name = reset->target.identifier;
-    if (reset->target.is_atom()) {
-        _state.reset_quantum_register(qreg_name);
-    } else {
+    if (reset->target.index.has_value()) {
         auto index = reset->target.index.value();
         _state.reset_quantum_register_partial(qreg_name, index);
+    } else {
+        _state.reset_quantum_register(qreg_name);
     }
+}
+
+static void execute_barrier(const std::shared_ptr<lang::BarrierOperation>&) {
+    // TODO: implement
 }
 
 static void execute_if_statement(const std::shared_ptr<lang::IfStatement>&) {

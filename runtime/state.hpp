@@ -53,13 +53,13 @@ private:
      * */
     std::map<std::string, std::tuple<size_t, size_t>> _quantum_registers;
     // keep the values of the classical registers
-    std::map<std::string, std::vector<float>> _classical_registers;
+    std::map<std::string, std::vector<bool>> _classical_registers;
 
 public:
     void add_quantum_register(std::string name, size_t size);
     void add_classical_register(std::string name, size_t size);
 
-    void set_classical_register(std::string name, std::vector<float> value);
+    void set_classical_register(std::string name, std::vector<bool> value);
 
     /**
      * Set to zero the qubits in a given quantum register
@@ -86,7 +86,7 @@ public:
         os << "    | " << state._classical_registers.size() << " classical register(s)\n"; 
         for (auto& creg : state._classical_registers) {
             os << "    | " << creg.first <<  " = { ";
-            for (auto& v : creg.second) {
+            for (auto v : creg.second) {
                 os << v << ", ";
             }
             os << "}\n";
