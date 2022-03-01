@@ -22,6 +22,7 @@
 
 #include "vector.hpp"
 #include <cassert>
+#include <random>
 
 /**
  * Compute the tensor product of two vectors
@@ -51,15 +52,53 @@ Vector Vector::tensor(const Vector& other) const {
     return res;
 }
 
-void Vector::reset(size_t start, size_t end) {
-    for (size_t i = start; i < end; i++) {
-        _entries[i] = 0;
+void Vector::reset(size_t offset, size_t size) {
+    size_t step = std::exp2l(offset);
+    size_t r = step*std::exp2l(size);
+    for (size_t i = 0; i < _size; i += step) {
+        if (i % r != 0) {
+            for (size_t j = i; j < i+step; j++) {
+                _entries[j] = 0;
+            }
+        }
+    }
+    normalize();
+}
+
+void Vector::measure(size_t offset, size_t size, std::vector<bool>& res) {
+    size_t step = std::exp2l(offset);
+    size_t block = std::exp2l(size);
+    size_t r = step*block;
+    std::vector<double> prob_measure(block);
+    for (size_t i = 0; i < _size; i += step) {
+        for (size_t j = i; j < i+step; j++) {
+            auto c = std::abs(_entries[j]);
+            prob_measure[(i/step)%block] += c*c;
+        }
+    }
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::discrete_distribution<size_t> distr(prob_measure.begin(), prob_measure.end());
+    size_t m = distr(gen);
+    for (size_t i = 0; i < _size; i += step) {
+        for (size_t j = i; j < i+step; j++) {
+            if (i % r != m) {
+                _entries[j] = 0;
+            }
+        }
+    }
+    normalize();
+    for (size_t i = 0; i < size; i++) {
+        res[i] = (m & 1) == 1;
+        m >>= 1;
     }
 }
 
+void Vector::measure(std::vector<bool>& res) {
+    measure(0, std::log2l(size()), res);
+}
+
 void Vector::normalize() {
-    //#ifdef USE_SIMD
-    //#else
     float norm = 0;
     for (size_t i = 0; i < _size; i++) {
         auto abs = std::abs(_entries[i]);
@@ -69,8 +108,8 @@ void Vector::normalize() {
     for (size_t i = 0; i < _size; i++) {
         _entries[i] = _entries[i] / norm;
     }
-    //#endif
 }
+
 }
 }
 

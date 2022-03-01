@@ -58,6 +58,7 @@ public:
         v._size = 0;
         return *this;
     }
+
     Vector(Vector&& v): _size(v._size), _entries(v._entries) {
         v._entries = nullptr;
     }
@@ -131,16 +132,17 @@ public:
         return _entries;
     }
 
-    /**
-     * Set to zero the coefficients between indices `start` and `end`.
-     * */
-    void reset(size_t start, size_t end);
+    void reset(size_t, size_t);
+
+    void measure(std::vector<bool>&);
+    void measure(size_t, size_t, std::vector<bool>&);
 
     /**
      * Normalize the vector such that the sum of the square of the
      * absolute values of the coefficients equals 1.
      * */
     void normalize();
+
 
     friend std::ostream& operator<<(std::ostream& os, const Vector& v) {
         os << "{ ";

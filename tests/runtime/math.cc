@@ -128,19 +128,42 @@ TEST(Math, MatRedimension) {
     }
 }
 
-TEST(Math, VecResetAndNormalize) {
+TEST(Math, VecReset) {
     std::vector<std::tuple<cxv_t, size_t, size_t, cxv_t>> test_data = {
         {
-            { 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, },
-            2, 5,
-            { 1.f/std::sqrt(154), 2.f/std::sqrt(154), 0, 0, 0,
-                6.f/std::sqrt(154), 7.f/std::sqrt(154), 8.f/std::sqrt(154), },
+            { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
+            1, 2,
+            { 0.5f, 0.5f, 0, 0, 0, 0, 0, 0, 0.5f, 0.5f, 0, 0, 0, 0, 0, 0 },
         },
     };
-    for (auto& [ vec, start, end, vec_r ] : test_data) {
+    for (auto& [ vec, offset, size, vec_r ] : test_data) {
         vector_t v = vector_t(vec);
-        v.reset(start, end);
-        v.normalize();
+        v.reset(offset, size);
         EXPECT_EQ(v, vector_t(vec_r));
+    }
+}
+
+TEST(Math, VecMeasure) {
+    std::vector<std::tuple<cxv_t>> test_data = {
+        {
+            {
+                1.f/std::sqrt(8.f), 1.f/std::sqrt(8.f), 1.f/std::sqrt(8.f), 1.f/std::sqrt(8.f),
+                1.f/std::sqrt(8.f), 1.f/std::sqrt(8.f), 1.f/std::sqrt(8.f), 1.f/std::sqrt(8.f),
+            },
+        },
+    };
+    for (auto& [ vec ] : test_data) {
+        auto v = vector_t(vec);
+        auto dim = std::log2l(v.size());
+        auto res = std::vector<bool>(dim);
+        v.measure(res);
+        std::cout << "collapsed: " << v << "\n";
+        auto m = 0;
+        for (size_t i = 0; i < dim; i++) {
+            if (res[i]) {
+                m += std::exp2l(i);
+            }
+        }
+        EXPECT_EQ(v[m], (cx_t)1);
     }
 }
