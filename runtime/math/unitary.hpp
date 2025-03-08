@@ -179,7 +179,7 @@ public:
     }
 };
 
-typedef struct Unitary unitary_t;
+typedef class Unitary unitary_t;
 
 }
 }
